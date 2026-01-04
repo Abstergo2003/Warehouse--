@@ -1,0 +1,53 @@
+.profileBox {
+    width: 80%;
+    height: auto;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+    padding: 20px;
+    transform: translateY(-50%);
+    margin-top: 50vh;
+}
+.inputDisplay {
+    margin-top: 30px;
+    height: 40px;
+    width: 50%;
+    font-size: 20px;
+    padding-left: 10px;
+}
+.profileLogo {
+    height: 150px;
+    border-radius: 100%;
+}
+.profileButton {
+    width: 35%;
+    display: inline-block;
+    height: 40px;
+    background-color: var(--danger);
+    border: 2px solid var(--border-muted);
+    border-radius: 5px;
+    font-size: 15px;
+    margin-top: 30px;
+}
+.profileButton:hover {
+    filter: brightness(0.9)
+}
+.profileButton:active {
+    filter: brightness(0.8);
+}
+.saveButton {
+    position: absolute;
+    right: -250px;
+    bottom: 50px;
+    height: 40px;
+    width: 200px;
+    background-color: var(--success);
+    border: 1px solid var(--border-muted);
+    border-radius: 5px;
+}
+.saveButton:hover {
+    filter: brightness(0.9)
+}
+.saveButton:active {
+    filter: brightness(0.8)
+}

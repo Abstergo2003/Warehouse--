@@ -1,10 +1,11 @@
 import Image from "next/image";
 import styles from "./page.module.css";
 import { auth } from "@/app/auth"
+import { redirect } from 'next/navigation';
 export const dynamic = "force-dynamic";
 export default async function Home() {
   const session = await auth();
-  if (!session?.user?.id) return null;
+  if (!session?.user?.id) redirect("/login");
   return (
     <div className={styles.page}>
       <main className={styles.main}>
