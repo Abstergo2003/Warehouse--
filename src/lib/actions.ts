@@ -1,7 +1,7 @@
 "use server";
 
 import sql from "@/lib/db";
-import { auth } from "@/app/auth";
+import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 export async function updateDisplayName(newName: string) {

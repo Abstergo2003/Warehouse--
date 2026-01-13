@@ -1,6 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
-"use client";
 
+"use client";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import { signOut } from "next-auth/react"; // Important: client version
@@ -23,7 +23,14 @@ export function ProfileForm({ user }: { user: any }) {
     return (
         <>
             <div className={styles.profileBox}>
-                <img src={user.image ?? ""} alt="Profile" className={styles.profileLogo} />
+                <Image 
+                    src={user.image ?? ""}
+                    alt="Profile"
+                    className={styles.profileLogo}
+                    width={150}
+                    height={150}
+                />
+
                 <br />
                 <input 
                     type="text" 

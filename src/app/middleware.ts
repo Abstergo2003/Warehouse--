@@ -1,5 +1,5 @@
 // middleware.ts
-export { auth as middleware } from "@/app/auth"
+export { auth as middleware } from "@/lib/auth"
 
 export const config = {
   // Tutaj definiujesz, które ścieżki wymagają logowania

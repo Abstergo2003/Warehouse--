@@ -20,7 +20,7 @@
     :root {
         --bg-dark: hsl(209 52% 1%);
         --bg: hsl(205 33% 4%);
-        --bg-light: hsl(205 18% 9%);
+        --bg-light: hwb(203 7% 89%);
         --text: hsl(205 93% 95%);
         --text-muted: hsl(205 15% 70%);
         --highlight: hsl(205 10% 39%);
@@ -39,29 +39,15 @@ html,
 body {
   max-width: 100vw;
   overflow: hidden;
-}
-
-body {
+  font-family: var(--font-oxanium);
   color: var(--text);
   background: var(--bg-dark);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-weight: 500;
 }
+
 
 * {
-  box-sizing: border-box;
   padding: 0;
   margin: 0;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+  color: var(--text)
 }

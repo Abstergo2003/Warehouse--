@@ -1,0 +1,105 @@
+.leftPanel {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18vw;
+    height: 100vh;
+    background-color: var(--bg);
+}
+.a {
+    text-decoration: none;
+}
+.leftPanel span {
+    font-size: 20px;
+    vertical-align: top;
+    line-height: 110px;
+    font-weight: 700;
+}
+.Icon {
+    margin-top: 10px;
+    background-color: var(--bg-light);
+    border-radius: 50px;
+}
+.locations {
+    display: block;
+    height: 50px;
+    font-size: 20px !important;
+    font-weight: 700;
+    padding-left: 10px;
+    padding-top: 5px;
+    line-height: 50px !important;
+}
+.locations:hover {
+    background-color: var(--bg-light);
+}
+.locations:active {
+    background-color: var(--bg-dark);
+}
+.icons {
+    line-height: 50px;
+    display: inline;
+    vertical-align: middle;
+}
+.helloBox {
+    width: 80%;
+    margin-left: 10%;
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+.helloBox span {
+    line-height: 20px;
+}
+
+.selectBox {
+    position: relative; /* Ważne: to ustala punkt odniesienia dla menu */
+    display: inline-block;
+}
+
+/* Ukryty input */
+.toggleInput {
+    display: none;
+}
+
+/* Menu */
+.optionBox {
+    display: none; /* Domyślnie ukryte */
+    position: absolute;
+    top: 100%; /* Zaraz pod przyciskiem */
+    left: 0;
+    width: 100%;
+    background-color: var(--bg-light);
+    z-index: 50; /* Musi być wysoko */
+}
+
+/* KLUCZOWY MOMENT: Selektor sibling */
+/* Jeśli input jest :checked, znajdź jego brata .optionBox i pokaż go */
+.toggleInput:checked ~ .optionBox {
+    display: block;
+}
+
+/* Stylizacja przycisku */
+.triggerLabel {
+    width: 150px;
+    display: block;
+    background-color: var(--success);
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 25px;
+    user-select: none; /* Żeby tekst się nie zaznaczał przy klikaniu */
+}
+.triggerLabel:hover {
+    filter: brightness(90%);
+}
+.helloBox select option:nth-child(1) {
+    background-color: var(--success) !important;
+}
+.optionBox div {
+    margin-top: 5px;
+    background-color: var(--bg-light);
+    border-radius: 5px;
+    font-size: 25px;
+    padding: 10px;
+    border: 1px solid var(--text);
+    cursor: pointer;
+}

@@ -1,0 +1,39 @@
+.locationsPage {
+    width: calc(82vw - 100px);
+    height: calc(100vh - 100px);
+    margin-left: 18vw;
+    padding: 50px;
+    overflow-y: auto;
+}
+.locationsPageWrapper {
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    overflow-y: auto;
+}
+.location {
+    margin-left: calc((20.5vw - 300px)/4)!important;
+    width: 300px;
+    background-color: var(--bg-light);
+    border: 2px solid var(--border-muted);
+    border-radius: 8px;
+    display: inline-block;
+    margin: 5px;
+    height: min-content;
+}
+.location button {
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
+    background-color: var(--bg);
+    vertical-align: top;
+    outline: 1px solid var(--border);
+    border: none;
+    float: right;
+}
+.location button:hover {
+    outline: 2px solid var(--border);
+
+}
+.location button:active {
+    background-color: var(--bg-dark);
+}
