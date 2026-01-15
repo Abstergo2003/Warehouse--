@@ -1,0 +1,65 @@
+.tableWrapper {
+    width: 100%;
+    height: fit-content;
+    position: relative;
+    margin-top: 20px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+.tableControlls {
+    background-color: var(--bg-light);
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    transition: all .3s ease-in-out;
+}
+.tableControlls table {
+    width: 100%;
+    padding: 0;
+}
+.tableControlls table tbody {
+    padding: 0;
+}
+.tableControlls table td {
+    padding: 10px;
+    transition: all .3s ease-in-out;
+}
+.tableControlls table td:hover {
+    background-color: var(--bg);    
+}
+.tableControlls table td span {
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border-radius: 10px;
+    display: flex;
+    width: min-content;
+    text-wrap: nowrap;
+    transition: all .3s ease-in-out;
+}
+.tableControlls table td span motion.svg {
+    display: flex;
+}
+.tableControlls table td span:hover {
+    background-color: var(--success);
+}
+
+.tableContents {
+    background-color: var(--bg);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transition: all .3s ease-in-out;
+}
+.tableContents table {
+    width: 100%;
+    padding: 0;
+}
+.tableContents table tbody {
+    padding: 0;
+}
+.tableContents td {
+    padding: 10px;
+    border-bottom: 1px solid var(--bg-light);
+}
+.tableContents a {
+    text-decoration: none;
+}

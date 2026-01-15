@@ -1,13 +1,15 @@
 
 "use client";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styles from "./page.module.css";
 import { signOut } from "next-auth/react"; // Important: client version
 import { updateDisplayName } from "@/lib/actions"
-
+import LockIcon from "../icons/LogOut";
+import {AnimatedIconHandle} from "@/app/icons/types"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ProfileForm({ user }: { user: any }) {
+    const iconRef = useRef<AnimatedIconHandle>(null);
     const [name, setName] = useState(user.name ?? "");
     const [isDirty, setIsDirty] = useState(false);
 
@@ -48,10 +50,15 @@ export function ProfileForm({ user }: { user: any }) {
                 />
                 <br />
                 <button 
+                    onMouseEnter={()=>{iconRef.current?.startAnimation()}}
+                    onMouseLeave={() => iconRef.current?.stopAnimation()}
                     className={styles.profileButton} 
                     onClick={() => signOut({ callbackUrl: "/login" })}
                 >
-                    Log Out
+                    <LockIcon
+                    ref={iconRef} />
+                    <span>Log Out</span>
+                    
                 </button>
             </div>
 

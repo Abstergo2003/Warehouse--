@@ -11,7 +11,7 @@ import CpuIcon from "./icons/Tools";
 import {AnimatedIconHandle} from "@/app/icons/types"
 import { useRef } from "react";
 import { useSession } from "next-auth/react";
-
+import Link from 'next/link'
 
 export default function LeftPanel() {
     const homeRef = useRef<AnimatedIconHandle>(null);
@@ -20,12 +20,12 @@ export default function LeftPanel() {
     const maintenanceRef = useRef<AnimatedIconHandle>(null);
     const profileRef = useRef<AnimatedIconHandle>(null);
     const toolsRef = useRef<AnimatedIconHandle>(null);
-    const { data: session, status } = useSession();
+    //const { data: session, status } = useSession();
 
     return(
         <div className={styles.leftPanel}>
             <div className={styles.helloBox}>
-                <span> Hello, {session?.user?.name} </span>
+                <span> Hello, {/*session?.user?.name*/} </span>
 
                 <br />
                 <Image 
@@ -43,8 +43,7 @@ export default function LeftPanel() {
             </div>
             
 
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages*/}
-            <a href="/" className={styles.a}>
+            <Link href="/" className={styles.a}>
                 <span
                     onMouseEnter={()=>{homeRef.current?.startAnimation()}}
                     onMouseLeave={() => homeRef.current?.stopAnimation()}
@@ -54,8 +53,9 @@ export default function LeftPanel() {
                     </div>
                     Home
                 </span>
-            </a>
-            <a href="/locations" className={styles.a}>
+            </Link>
+            
+            <Link href="/locations" className={styles.a}>
                 <span
                     onMouseEnter={()=>{locationRef.current?.startAnimation()}}
                     onMouseLeave={() => locationRef.current?.stopAnimation()}
@@ -65,8 +65,8 @@ export default function LeftPanel() {
                     </div>
                     Location
                 </span>
-            </a>
-            <a href="/search" className={styles.a}>
+            </Link>
+            <Link href="/search" className={styles.a}>
                 <span
                     onMouseEnter={()=>{searchRef.current?.startAnimation()}}
                     onMouseLeave={() => searchRef.current?.stopAnimation()}
@@ -76,8 +76,8 @@ export default function LeftPanel() {
                     </div>
                     Search
                 </span>
-            </a>
-            <a href="/maintenance" className={styles.a}>
+            </Link>
+            <Link href="/maintenance" className={styles.a}>
                 <span
                     onMouseEnter={()=>{maintenanceRef.current?.startAnimation()}}
                     onMouseLeave={() => maintenanceRef.current?.stopAnimation()}
@@ -87,8 +87,8 @@ export default function LeftPanel() {
                     </div>
                     Maintenance
                 </span>
-            </a>
-            <a href="/profile" className={styles.a}>
+            </Link>
+            <Link href="/profile" className={styles.a}>
                 <span
                     onMouseEnter={()=>{profileRef.current?.startAnimation()}}
                     onMouseLeave={() => profileRef.current?.stopAnimation()}
@@ -98,8 +98,8 @@ export default function LeftPanel() {
                     </div>
                     Profile
                 </span>
-            </a>
-            <a href="/tool" className={styles.a}>
+            </Link>
+            <Link href="/tools" className={styles.a}>
                 <span
                     onMouseEnter={()=>{toolsRef.current?.startAnimation()}}
                     onMouseLeave={() => toolsRef.current?.stopAnimation()}
@@ -109,7 +109,7 @@ export default function LeftPanel() {
                     </div>
                     Tools
                 </span>
-            </a>
+            </Link>
         </div>
     )
 }

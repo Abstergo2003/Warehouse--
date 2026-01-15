@@ -10,7 +10,7 @@
 }
 .inputDisplay {
     margin-top: 30px;
-    height: 40px;
+    height: 50px;
     width: 50%;
     font-size: 20px;
     padding-left: 10px;
@@ -25,13 +25,17 @@
 .profileButton {
     width: 35%;
     display: inline-block;
-    height: 40px;
     background-color: var(--danger);
     border: 2px solid var(--border-muted);
     border-radius: 5px;
-    font-size: 15px;
+    font-size: 25px;
+    line-height: 40px;
     margin-top: 30px;
     font-weight: 700;
+    padding-top: 10px;
+}
+.profileButton span {
+    vertical-align: super;
 }
 .profileButton:hover {
     filter: brightness(0.9)
