@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react"
 import ArrowDown01Icon from "../icons/Sort"
 import styles from "./table.module.css"
-import { a } from "motion/react-client"
 
 export function Table(props: {
     columns: {name: string, width: number}[]

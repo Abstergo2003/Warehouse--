@@ -3,6 +3,8 @@ import localFont from 'next/font/local';
 import "./globals.css";
 import LeftPanel from "@/app/leftPanel"
 import SessionWrapper from "./SessionWrapper";
+import { Suspense } from "react";
+import ModalManager from "./components/ModalManager";
 
 export const viewport: Viewport = {
   themeColor: "#000000",
@@ -94,7 +96,14 @@ export default function RootLayout({
       </head>
       <body className={`${Oxanium.variable}`}>
         <SessionWrapper><LeftPanel /></SessionWrapper>
-        {children}
+        <SessionWrapper>
+          <Suspense fallback={null}>
+              <ModalManager />
+          </Suspense>
+        </SessionWrapper>
+        <SessionWrapper>
+          {children}
+        </SessionWrapper>
       </body>
     </html>
   );

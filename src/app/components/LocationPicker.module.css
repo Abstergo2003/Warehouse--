@@ -1,0 +1,23 @@
+/* src/app/components/LocationPicker.module.css */
+
+.container {
+  height: 300px;
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ccc;
+  position: relative;
+  z-index: 1; /* Ważne, żeby mapa nie przykryła modala */
+}
+
+.loading {
+  height: 300px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+  color: #666;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}

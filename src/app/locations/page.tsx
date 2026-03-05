@@ -37,7 +37,7 @@ export default function LocationsPage() {
 }
 
 
-export function Location(props: {
+function Location(props: {
     data: {name: string, id: string, localization: {lat: string, lon: string}}
 }) {
     const navigationRef = useRef<AnimatedIconHandle>(null)
@@ -59,7 +59,7 @@ export function Location(props: {
                 onMouseEnter={()=>{inspectRef.current?.startAnimation()}}
                 onMouseLeave={() => inspectRef.current?.stopAnimation()}>
                     <EyeIcon ref={inspectRef}></EyeIcon>
-                    Inspect
+                    <span>Inspect</span>
                 </button>
             </a>
             <a target='_blank' href={`https://www.google.com/maps/dir//${props.data.localization.lat},${props.data.localization.lon}/`}>
@@ -67,7 +67,7 @@ export function Location(props: {
                 onMouseEnter={()=>{navigationRef.current?.startAnimation()}}
                 onMouseLeave={() => navigationRef.current?.stopAnimation()}>
                     <MousePointer2Icon ref={navigationRef}></MousePointer2Icon>
-                    Navigate
+                    <span>Navigate</span>
                 </button>
             </a>
         </div>

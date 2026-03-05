@@ -24,7 +24,8 @@ export default function LocationByID() {
             <div className={styles.summary}>
                 <Image src="/icons/icon.png" width={80} height={80} alt="" />
                 <span>Warehouse 1</span>
-                <p>50 PLN</p>
+                <p className="">50 PLN</p>
+                <button style={{right: "175px", backgroundColor: "var(--warning)"}}>Map</button>
                 <button style={{right: "100px", backgroundColor: "var(--warning)"}}>Edit</button>
                 <button style={{right: "10px", backgroundColor: "var(--danger)"}}>Delete</button>
             </div>

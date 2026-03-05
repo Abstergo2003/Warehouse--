@@ -82,7 +82,7 @@
 .triggerLabel {
     width: 150px;
     display: block;
-    background-color: var(--success);
+    background-color: var(--primary);
     padding: 10px;
     border-radius: 5px;
     font-size: 25px;
@@ -92,7 +92,7 @@
     filter: brightness(90%);
 }
 .helloBox select option:nth-child(1) {
-    background-color: var(--success) !important;
+    background-color: var(--primary) !important;
 }
 .optionBox div {
     margin-top: 5px;

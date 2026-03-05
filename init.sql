@@ -24,7 +24,8 @@ CREATE TABLE IF NOT EXISTS storage (
     name VARCHAR(255) NOT NULL,
     owner_id UUID NOT NULL REFERENCES users(id),
     localization TEXT NOT NULL,
-    storage_area INT NOT NULL
+    storage_area INT NOT NULL,
+    img_url TEXT
 );
 
 -- 3. Przedmioty
@@ -40,7 +41,15 @@ CREATE TABLE IF NOT EXISTS item (
     last_borrowed_to UUID REFERENCES users(id),
     owner_id UUID NOT NULL REFERENCES users(id),
     storage_id UUID REFERENCES storage(id),
-    min_amount REAL DEFAULT 0
+    min_amount REAL DEFAULT 0,
+    data JSON
+);
+
+CREATE TABLE IF NOT EXISTS item_patterns (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id),
+    name TEXT,
+    fields JSONB
 );
 
 -- 4. Współdzielenie magazynów

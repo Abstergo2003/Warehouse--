@@ -20,12 +20,12 @@ export default function LeftPanel() {
     const maintenanceRef = useRef<AnimatedIconHandle>(null);
     const profileRef = useRef<AnimatedIconHandle>(null);
     const toolsRef = useRef<AnimatedIconHandle>(null);
-    //const { data: session, status } = useSession();
+    const { data: session, status } = useSession();
 
     return(
         <div className={styles.leftPanel}>
             <div className={styles.helloBox}>
-                <span> Hello, {/*session?.user?.name*/} </span>
+                <span> Hello, {session?.user?.name} </span>
 
                 <br />
                 <Image 
@@ -88,6 +88,17 @@ export default function LeftPanel() {
                     Maintenance
                 </span>
             </Link>
+            <Link href="/templates" className={styles.a}>
+                <span
+                    onMouseEnter={()=>{toolsRef.current?.startAnimation()}}
+                    onMouseLeave={() => toolsRef.current?.stopAnimation()}
+                    className={styles.locations}>
+                    <div className={styles.icons}>
+                        <CpuIcon ref={toolsRef} size={40}/>
+                    </div>
+                    Templates
+                </span>
+            </Link>
             <Link href="/profile" className={styles.a}>
                 <span
                     onMouseEnter={()=>{profileRef.current?.startAnimation()}}
@@ -99,17 +110,7 @@ export default function LeftPanel() {
                     Profile
                 </span>
             </Link>
-            <Link href="/tools" className={styles.a}>
-                <span
-                    onMouseEnter={()=>{toolsRef.current?.startAnimation()}}
-                    onMouseLeave={() => toolsRef.current?.stopAnimation()}
-                    className={styles.locations}>
-                    <div className={styles.icons}>
-                        <CpuIcon ref={toolsRef} size={40}/>
-                    </div>
-                    Tools
-                </span>
-            </Link>
+            
         </div>
     )
 }
@@ -132,8 +133,8 @@ export function Dropdown() {
 
       {/* 3. MENU musi być "bratem" inputa (ten sam poziom w drzewie DOM) */}
       <div className={styles.optionBox}>
-        <div>Item</div>
-        <div>Warehouse</div>
+        <a href="?modal=add-item"><div>Item</div></a>
+        <a href="?modal=add-warehouse"><div>Warehouse</div></a>
       </div>
     </div>
   );

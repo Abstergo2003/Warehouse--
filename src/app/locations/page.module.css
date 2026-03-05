@@ -29,6 +29,8 @@
     outline: 1px solid var(--border);
     border: none;
     float: right;
+    width: fit-content;
+    white-space: nowrap;
 }
 .location button:hover {
     outline: 2px solid var(--border);
@@ -36,4 +38,14 @@
 }
 .location button:active {
     background-color: var(--bg-dark);
+}
+.location {
+    white-space: nowrap;
+}
+.location span {
+    display: flex;
+}
+
+motion.svg {
+    display: flex;
 }
