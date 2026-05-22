@@ -8,11 +8,14 @@ services:
       # ... twoje stare zmienne ...
       - DATABASE_URL=${DATABASE_URL}
       - AUTH_SECRET=${AUTH_SECRET}
+      - AUTH_GOOGLE_ID=${AUTH_GOOGLE_ID}
+      - AUTH_GOOGLE_SECRET=${AUTH_GOOGLE_SECRET}
+      - AUTH_URL=${AUTH_URL}
       # Konfiguracja S3 (MinIO)
       - S3_ENDPOINT=http://minio:9000
       - S3_REGION=eu-central-1
-      - S3_ACCESS_KEY=${S3_USER}
-      - S3_SECRET_KEY=${S3_PASSWORD}
+      - S3_ACCESS_KEY=app-user
+      - S3_SECRET_KEY=app-password-123
       - S3_BUCKET_NAME=warehouse
       # Publiczny URL do wyświetlania zdjęć w przeglądarce
       - NEXT_PUBLIC_S3_HOSTNAME=localhost
@@ -26,8 +29,6 @@ services:
   # 2. Baza Danych
   db:
     image: postgres:15-alpine
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -41,7 +42,6 @@ services:
     image: minio/minio
     ports:
       - "9000:9000" # API
-      - "9001:9001" # Panel Admina (Console)
     environment:
       MINIO_ROOT_USER: ${S3_USER}
       MINIO_ROOT_PASSWORD: ${S3_PASSWORD}

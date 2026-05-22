@@ -56,7 +56,13 @@ body {
 * {
   padding: 0;
   margin: 0;
-  color: var(--text)
+  color: var(--text);
+  font-family: var(--font-oxanium);
+}
+
+input {
+  font-family: var(--font-oxanium);
+  font-weight: 500;
 }
 
 input[type="number"]::-webkit-outer-spin-button,
@@ -180,6 +186,20 @@ a {
   border: none;
   outline: none;
   height: 30px;
+}
+.ui-page-container {
+  position: absolute;
+  left: 14vw;
+  right: 0;
+  bottom: 0;
+  top:0;
+}
+.ui-input-label {
+  width: 200px !important;
+}
+.ui-input-container {
+  margin-top: 5px;
+  margin-bottom: 5px;
 }
 /* @theme inline {
     --radius-sm: calc(var(--radius) - 4px);

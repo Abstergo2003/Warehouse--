@@ -1,12 +1,13 @@
 import { auth } from "@/lib/auth";
-import { redirect } from 'next/navigation';
 import { ProfileForm } from "./profileForm";
+import WindowsPageContainer from "@/app/components/WindowsPageContainer";
 
 export default async function Profile() {
     const session = await auth();
-    if (!session?.user?.id) redirect("/login");
 
     return (
-        <ProfileForm user={session.user} />
+        <WindowsPageContainer>
+            <ProfileForm user={session?.user} />
+        </WindowsPageContainer>
     );
 }

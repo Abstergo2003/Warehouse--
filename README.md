@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Level Up Your Logistics: The Ultimate Inventory & Warehouse Management System
 
-## Getting Started
+Are you still tracking your valuable assets using clunky, outdated spreadsheets or rigid legacy software? **It's time for an upgrade.** Meet the lightning-fast, beautifully animated, and rock-solid platform built to modernize how you handle your stock. Engineered with cutting-edge web technologies, this isn't just an inventory tracker—it's your new warehouse command center.
 
-First, run the development server:
+---
 
+## 🔥 Why Choose This System?
+
+### 🐳 Containerized to Perfection (Docker Ready)
+Zero dependency hell. No "it works on my machine" excuses. This entire architecture is fully Dockerized, meaning you can spin up the whole system—frontend, backend logic, and environment—with a single terminal command. 
+
+### 📍 Never Lose Track Again
+Stop guessing where your facilities are. Our **Interactive GPS Maps** (powered by Leaflet) let you pinpoint warehouse locations with absolute precision. Just click the map, drop a pin, and your coordinates are locked in.
+
+### 🛠️ Your Data, Your Rules
+Say goodbye to software that forces you to adapt to its limitations. With our **Dynamic Template Builder**, *you* dictate the data. Create custom, deeply nested fields for your items—whether it's serial numbers, expiration dates, or specification files—on the fly.
+
+### ⚡ Edge-Optimized Speed & Security
+Built on **Next.js 15**, this app doesn't just run fast; it flies. We utilize **Edge-runtime Middleware** to intercept requests and verify your Google OAuth session before the page even thinks about rendering. Fort Knox security, zero loading screens.
+
+### 🎨 Dangerously Good Looks
+Who said enterprise software has to be boring? Experience butter-smooth, custom **Framer Motion SVG animations** (yes, the trash can actually opens when you hover over it). It's a UI that feels incredibly satisfying to use.
+
+---
+
+## 💻 Under the Hood: The Tech Stack
+
+Built for scale, type-safety, and maximum performance:
+
+* **Core:** Next.js (App Router) & TypeScript
+* **Deployment:** Docker & Docker Compose
+* **Database:** PostgreSQL (via Vercel Postgres)
+* **Authentication:** Auth.js / NextAuth v5 (Google OAuth Provider)
+* **Mapping:** React-Leaflet
+* **Styling & Motion:** CSS Modules + Framer Motion
+
+---
+
+## 🏁 Ready to Take Control? (Quick Start)
+
+The preferred and fastest way to get this powerhouse running is using **Docker**.
+
+### Method A: The Docker Way (Recommended) 🐳
+
+1. **Clone the arsenal:**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone [https://github.com/Abstergo2003/Warehouse--.git](https://github.com/Abstergo2003/Warehouse--.git)
+cd Warehouse--
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Fuel it up (Environment Variables):**
+Create a `.env` file in the root directory and plug in your credentials:
+```env
+AUTH_SECRET="your_super_secret_key"
+AUTH_URL="http://localhost:3000"
+AUTH_GOOGLE_ID="your_google_id"
+AUTH_GOOGLE_SECRET="your_google_secret"
+POSTGRES_URL="your_db_connection_string"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Ignition:**
+```bash
+docker-compose up -d --build
+```
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
+*Your command center is now live at `http://localhost:3000`.*
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Method B: Manual Local Development
 
-## Deploy on Vercel
+If you prefer to run things on the bare metal for development purposes:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Install dependencies: `npm install`
+2. Ensure your `.env.local` is configured (same as step 2 above).
+3. Start the dev server: `npm run dev`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+<!-- ## 👨‍💻 Engineered By
+
+Crafted with precision engineering straight out of the Warsaw University of Technology by **Radosław Korszla**.
+Passionate about clean code, high-performance architecture, and gravel cycling.
+
+🌐 [LinkedIn](https://www.google.com/search?q=https://linkedin.com/in/rados%C5%82aw-korszla-a78930256) | 💻 [GitHub](https://www.google.com/search?q=https://github.com/Abstergo2003) | 🚴‍♂️ [Strava](https://www.google.com/search?q=https://strava.com/athletes/rkorszla)
+
+> **"Code should be as fast and reliable as a good gravel bike on a dirt road."**
+
+--- -->
+
+⭐ *If this project helped you modernize your workflow, don't forget to drop a star on the repo!* ⭐

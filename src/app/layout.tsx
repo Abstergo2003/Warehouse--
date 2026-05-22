@@ -1,7 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import localFont from 'next/font/local';
 import "./globals.css";
-import LeftPanel from "@/app/leftPanel"
+import "react-windows-ui/config/app-config.css";
+import "react-windows-ui/dist/react-windows-ui.min.css";
+import "react-windows-ui/icons/winui-icons.min.css";
+import WindowsAppProvider from "./WindowsAppProvider";
+import WindowsNavBar from "./WindowsNavBar";
 import SessionWrapper from "./SessionWrapper";
 import { Suspense } from "react";
 import ModalManager from "./components/ModalManager";
@@ -10,7 +14,7 @@ export const viewport: Viewport = {
   themeColor: "#000000",
 };
 
-export const Oxanium = localFont({
+const Oxanium = localFont({
   src: [
     {
       path: '../../public/fonts/Oxanium400.woff2',
@@ -95,15 +99,17 @@ export default function RootLayout({
         <link rel="apple-touch-startup-image" href="apple-splash-1136-640.jpg" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"/>
       </head>
       <body className={`${Oxanium.variable}`}>
-        <SessionWrapper><LeftPanel /></SessionWrapper>
-        <SessionWrapper>
-          <Suspense fallback={null}>
-              <ModalManager />
-          </Suspense>
-        </SessionWrapper>
-        <SessionWrapper>
-          {children}
-        </SessionWrapper>
+        <WindowsAppProvider>
+          <SessionWrapper><WindowsNavBar /></SessionWrapper>
+          <SessionWrapper>
+            <Suspense fallback={null}>
+                <ModalManager />
+            </Suspense>
+          </SessionWrapper>
+          <SessionWrapper>
+            {children}
+          </SessionWrapper>
+        </WindowsAppProvider>
       </body>
     </html>
   );

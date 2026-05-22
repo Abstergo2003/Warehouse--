@@ -1,10 +1,10 @@
 import { createTemplateAction } from "@/lib/actions/createTemplate";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { FieldType } from "@/app/icons/types";
+import { FieldType } from "@/lib/types";
+import { Dialog, InputText } from "react-windows-ui";
 
 export default function TemplateModal() {
-    const dialogRef = useRef<HTMLDialogElement>(null);
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
@@ -29,53 +29,65 @@ export default function TemplateModal() {
         setFields(newFields);
     };
 
-    useEffect(() => {
-        dialogRef.current?.showModal();
-    }, []);
-
     const close = () => {
-        dialogRef.current?.close();
         const params = new URLSearchParams(searchParams.toString());
         params.delete("modal");
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
     };
 
     return (
-        <dialog ref={dialogRef} onClose={close} className="warehouseEditer" id="fieldModal">
-            <span style={{float: "right", cursor: "pointer"}} onClick={close}>X</span>
-            <h3>Create Template</h3>
-            <br />
-            
-            <label htmlFor="createItemName">Name:</label><br />
-            <input 
-                id="createItemName" 
-                type="text" 
-                value={name} 
-                onChange={(e) => setName(e.target.value)}
-            /><br />
-            <br />
-            
-            <label>Fields:</label>
-            <button 
-                style={{float: "right"}} 
-                onClick={() => setFields([...fields, {name: "", type: "text", defVal:""}])}
-            >
-                Add
-            </button><br />
-            <br />
-            
-            {fields.map((field, i) => (
-                <FieldField 
-                    key={i} 
-                    index={i} 
-                    fieldData={field} 
-                    onChange={updateField} 
+        <Dialog isVisible={true} onBackdropPress={close}>
+            <div style={{padding: "20px", width: "400px", maxHeight: "80vh", overflowY: "auto"}}>
+                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                    <h3>Create Template</h3>
+                    <span style={{cursor: "pointer", fontWeight: "bold"}} onClick={close}>X</span>
+                </div>
+                <br />
+                
+                <InputText 
+                    label="Template Name"
+                    value={name} 
+                    onChange={(e: any) => setName(e.target.value)}
+                    width="100%"
                 />
-            ))}
-            
-            <br /><br />
-            <button onClick={handleManualSubmit}>Create</button>
-        </dialog>
+                <br />
+                
+                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: '10px'}}>
+                    <label>Fields</label>
+                    <button 
+                        onClick={() => setFields([...fields, {name: "", type: "text", defVal:""}])}
+                        style={{ padding: '5px 15px', cursor: 'pointer' }}
+                    >
+                        Add Field
+                    </button>
+                </div>
+                
+                {fields.map((field, i) => (
+                    <FieldField 
+                        key={i} 
+                        index={i} 
+                        fieldData={field} 
+                        onChange={updateField} 
+                    />
+                ))}
+                
+                <br />
+                <button 
+                    onClick={handleManualSubmit}
+                    style={{ 
+                        width: '100%', 
+                        padding: '10px', 
+                        backgroundColor: 'var(--primary)', 
+                        color: 'white', 
+                        border: 'none', 
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Create
+                </button>
+            </div>
+        </Dialog>
     );
 }
 
@@ -85,29 +97,32 @@ function FieldField(props: {
     onChange: (index: number, key: keyof FieldType, value: string) => void 
 }) {
     return(
-        <div className="fieldfield">
-            <label>Name:</label><br />
-            <input 
-                type="text" 
+        <div className="fieldfield" style={{padding: "10px", border: "1px solid var(--border)", marginBottom: "15px", borderRadius: '4px'}}>
+            <InputText 
+                label="Field Name"
                 value={props.fieldData.name}
-                onChange={(e) => props.onChange(props.index, "name", e.target.value)}
-            /><br />
+                onChange={(e: any) => props.onChange(props.index, "name", e.target.value)}
+                width="100%"
+            />
+            <br />
             
-            <label>Type:</label><br />
+            <label>Type</label><br />
             <select 
                 value={props.fieldData.type} 
                 onChange={(e) => props.onChange(props.index, "type", e.target.value)}
+                style={{width: "100%", padding: "8px", border: "1px solid var(--border)", borderRadius: "4px", marginTop: '5px'}}
             >
                 <option value="text">Text</option>
                 <option value="number">Number</option>
                 <option value="date">Date</option>
-            </select><br />
+            </select><br /><br />
             
-            <label>Default:</label><br />
-            <input 
-                type={props.fieldData.type}
+            <InputText 
+                label="Default Value"
+                type={props.fieldData.type as any}
                 value={props.fieldData.defVal}
-                onChange={(e) => props.onChange(props.index, "defVal", e.target.value)}
+                onChange={(e: any) => props.onChange(props.index, "defVal", e.target.value)}
+                width="100%"
             />
         </div>
     );

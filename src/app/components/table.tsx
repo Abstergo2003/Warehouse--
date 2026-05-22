@@ -1,25 +1,38 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import ArrowDown01Icon from "../icons/Sort"
-import styles from "./table.module.css"
 
 export function Table(props: {
-    columns: {name: string, width: number}[]
-    items: string[][]
+    columns: {name: string, width?: number}[]
+    items: (string | React.ReactNode)[][]
 }) {
-    const [sortColumnIndex, setSortColumnIndex] = useState(0);
+    const [sortColumnIndex, setSortColumnIndex] = useState<number | null>(null);
     const [isDescending, setIsDescending] = useState(false);
 
     const sortedItems = useMemo(() => {
-        const itemsCopy = [...props.items];
+        if (sortColumnIndex === null) return props.items;
 
+        const itemsCopy = [...props.items];
         itemsCopy.sort((a, b) => {
             const valA = a[sortColumnIndex];
             const valB = b[sortColumnIndex];
 
-            const comparison = valA.localeCompare(valB, undefined, { numeric: true });
+            // Extraction of text content if it's a ReactNode for comparison
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const getSortValue = (val: any): string => {
+                if (typeof val === 'string') return val;
+                if (typeof val === 'number') return String(val);
+                if (val && val.props && val.props.children) {
+                    if (typeof val.props.children === 'string') return val.props.children;
+                    if (Array.isArray(val.props.children)) return val.props.children.join('');
+                }
+                return '';
+            };
 
+            const strA = getSortValue(valA);
+            const strB = getSortValue(valB);
+
+            const comparison = strA.localeCompare(strB, undefined, { numeric: true });
             return isDescending ? -comparison : comparison;
         });
 
@@ -34,32 +47,62 @@ export function Table(props: {
             setIsDescending(false);
         }
     };
-    return(
-        <div className={styles.tableWrapper}>
-            <div className={styles.tableControlls}>
-                <table>
-                    <tbody>
-                        <tr>
-                            {props.columns.map((column, i) => 
-                                <td key={`tableControll${i}`} onClick={() => handleHeaderClick(i)} style={{width: `${column.width}%`}}><span>{column.name}&nbsp;<ArrowDown01Icon size={20}></ArrowDown01Icon></span></td>
-                            )}
+
+    return (
+        <div className="ui-table-view-container" style={{ 
+            marginTop: '20px',
+            border: '1px solid var(--color-ui-border-default)',
+            borderRadius: '4px',
+            overflowX: 'auto',
+            backgroundColor: 'var(--color-card-bg-default)',
+            maxWidth: "1200px",
+            width: "1200px"
+        }}>
+            <table className="ui-table-view" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                    <tr style={{ borderBottom: '1px solid var(--color-ui-border-default)' }}>
+                        {props.columns.map((column, i) => (
+                            <th 
+                                key={i} 
+                                onClick={() => handleHeaderClick(i)}
+                                style={{ 
+                                    textAlign: 'left',
+                                    padding: '12px 20px',
+                                    fontWeight: 600,
+                                    fontSize: '16px',
+                                    cursor: 'pointer',
+                                    userSelect: 'none',
+                                    whiteSpace: 'nowrap'
+                                }}
+                                className="sortable"
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    {column.name}
+                                    {sortColumnIndex === i && (
+                                        <i className={isDescending ? "icons10-arrow-down" : "icons10-arrow-up"} style={{ fontSize: '14px' }}></i>
+                                    )}
+                                </div>
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
+                <tbody>
+                    {sortedItems.map((row, rowIndex) => (
+                        <tr key={rowIndex} style={{ borderBottom: '1px solid var(--color-ui-border-default)', transition: 'background-color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                            {row.map((cell, cellIndex) => (
+                                <td key={cellIndex} style={{ padding: '12px 20px', fontSize: '15px' }}>
+                                    {cell}
+                                </td>
+                            ))}
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div className={styles.tableContents}>
-                <table>
-                    <tbody>
-                            {props.items.length == 0 ? <span style={{display: "block", width: "100%", textAlign:"center", paddingTop: "20px", paddingBottom: "20px"}}>No items here</span> : <></>}
-                            {sortedItems.map((item, i) =>
-                                <tr key={`tabelRowOne${i}`}>
-                                    {item.map((name, i) => 
-                                    <td key={`tabelRowTwo${i}`} style={{width: `${props.columns[i].width}%`}}><a href="/items/">{name}</a></td>)}
-                                </tr>
-                            )}
-                    </tbody>
-                </table>
-            </div>
+                    ))}
+                </tbody>
+            </table>
+            {props.items.length === 0 && (
+                <div style={{ padding: '30px', textAlign: 'center', opacity: 0.6 }}>
+                    No items found in this location.
+                </div>
+            )}
         </div>
     )
 }

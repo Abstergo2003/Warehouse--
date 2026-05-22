@@ -1,19 +1,19 @@
-// auth.ts
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
 import sql from "@/lib/db";
+import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [Google],
   callbacks: {
+    ...authConfig.callbacks,
+    
     async signIn({ user, account }) {
       if (!user.email || !account) return false;
-
       const displayName = user.name || null;
       const email = user.email || null;
       const avatarUrl = user.image || null;
-
-      // Dla konta OIDC
       const accessToken = account.access_token || null;
       const refreshToken = account.refresh_token || null;
       const expiresAt = account.expires_at || null;
@@ -42,25 +42,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             VALUES (${dbUser.id}, ${provider}, ${providerAccountId}, ${accessToken}, ${refreshToken}, ${expiresAt})
           `;
         }
-
         return true;
       } catch (error) {
         console.error("Błąd podczas synchronizacji SQL z Google Auth:", error);
         return false;
       }
     },
-    async session({ session, token }) {
-      if (session.user && session.user.email) {
-        const dbUser = await sql`
-          SELECT id, display_name FROM users WHERE email = ${session.user.email}
-        `;
-        
-        if (dbUser.length > 0) {
-          session.user.id = dbUser[0].id;
-          session.user.name = dbUser[0].display_name; 
+    
+    async jwt({ token, user }) {
+      if (user?.email) {
+        try {
+          const dbUser = (await sql`SELECT id, display_name FROM users WHERE email = ${user.email}`)[0];
+          if (dbUser) {
+            token.sub = dbUser.id;
+            token.name = dbUser.display_name;
+          }
+        } catch (error) {
+          console.error("Błąd JWT:", error);
         }
       }
-      return session;
-    },
+      return token;
+    }
   }
 });

@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useCallback } from "react";
-import type { AnimatedIconHandle, AnimatedIconProps } from "@/app/icons/types";
+import type { AnimatedIconHandle, AnimatedIconProps } from "@/lib/types";
 import { motion, useAnimate } from "motion/react";
 
 const HomeIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(

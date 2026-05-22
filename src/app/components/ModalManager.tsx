@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import ItemEditModal from "./modals/ItemModal";
 import WarehouseEditModal from "./modals/WarehouseModal";
 import TemplateModal from "./modals/TemplateModal";
+import ShareWarehouseModal from "./modals/ShareWarehouseModal";
 
 
 export default function ModalManager() {
@@ -18,6 +19,8 @@ export default function ModalManager() {
       return <ItemEditModal />;
     case "add-warehouse":
       return <WarehouseEditModal />;
+    case "share-warehouse":
+      return <ShareWarehouseModal />;
     case "add-template":
       return <TemplateModal />;
     // case "add-item":

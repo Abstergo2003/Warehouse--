@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle } from "react";
-import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
+import type { AnimatedIconHandle, AnimatedIconProps } from "../../lib/types";
 import { motion, useAnimate } from "motion/react";
 
 const CpuIcon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(

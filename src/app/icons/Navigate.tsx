@@ -1,5 +1,5 @@
 import { forwardRef, useImperativeHandle, useRef } from "react";
-import type { AnimatedIconHandle, AnimatedIconProps } from "./types";
+import type { AnimatedIconHandle, AnimatedIconProps } from "../../lib/types";
 import { motion, useAnimate } from "motion/react";
 
 const MousePointer2Icon = forwardRef<AnimatedIconHandle, AnimatedIconProps>(

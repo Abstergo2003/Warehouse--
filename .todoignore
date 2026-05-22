@@ -1,3 +1,14 @@
 node_modules/*
 .next/*
 .vscode/*
+public/fonts/*
+public/icons/*
+.todoignore
+components.json
+eslint.config.mjs
+next-env.d.ts
+next.config.ts
+package-lock.json
+package.jsonpostcss.config.mjs
+tailwind.config.ts
+tsconfig.json
