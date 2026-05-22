@@ -36,6 +36,7 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
+    restart: always
 
   # 3. MinIO (Twój lokalny S3)
   minio:
@@ -48,6 +49,7 @@ services:
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
+    restart: always
 
   # 4. Automat konfiguracyjny (Wersja kuloodporna)
   createbuckets:
