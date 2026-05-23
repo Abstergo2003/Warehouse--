@@ -14,9 +14,9 @@ services:
       # Konfiguracja S3 (MinIO)
       - S3_ENDPOINT=http://minio:9000
       - S3_REGION=eu-central-1
-      - S3_ACCESS_KEY=app-user
-      - S3_SECRET_KEY=app-password-123
-      - S3_BUCKET_NAME=warehouse
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
       # Publiczny URL do wyświetlania zdjęć w przeglądarce
       - NEXT_PUBLIC_S3_HOSTNAME=localhost
       - NEXT_PUBLIC_S3_PORT=9000
@@ -62,38 +62,15 @@ services:
       # Przekazujemy admina (musi pasować do sekcji minio!)
       S3_USER: ${S3_USER}
       S3_PASSWORD: ${S3_PASSWORD}
+      # Przekazujemy dane nowego usera, które ma utworzyć
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY}
+      S3_SECRET_KEY: ${S3_SECRET_KEY}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME}
+    volumes:
+      - ./create-buckets.sh:/create-buckets.sh
     entrypoint:
       - /bin/sh
-      - -c
-      - |
-        echo "Czekam na start MinIO..."
-        # Czekamy aż admin (z .env) zadziała
-        until /usr/bin/mc alias set myminio http://minio:9000 ${S3_USER} ${S3_PASSWORD}; do
-          echo "MinIO niedostępne... próba za 1s"
-          sleep 1
-        done
-
-        echo "✅ MinIO połączone jako ADMIN. Rozpoczynam konfigurację..."
-
-        # 1. Tworzenie Bucketa
-        /usr/bin/mc mb --ignore-existing myminio/warehouse
-        /usr/bin/mc anonymous set public myminio/warehouse
-        echo "✅ Bucket 'warehouse' gotowy i publiczny."
-
-        # 2. Tworzenie usera 'app-user'
-        # Używamy wartości wpisanych na sztywno lub domyślnych, żeby uniknąć błędu pustej zmiennej
-        APP_USER="app-user"
-        APP_PASS="app-password-123"
-
-        echo "Tworzenie użytkownika: $APP_USER"
-        /usr/bin/mc admin user add myminio $APP_USER $APP_PASS
-        
-        # 3. Nadawanie uprawnień
-        /usr/bin/mc admin policy attach myminio readwrite --user $APP_USER
-        
-        echo "✅ Użytkownik aplikacji utworzony!"
-        echo "✅ Gotowe! Wszystko skonfigurowane."
-        exit 0
+      - /create-buckets.sh
 
 volumes:
   postgres_data:
