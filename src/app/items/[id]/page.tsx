@@ -3,7 +3,6 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import TrashIcon from "../../icons/Trash" 
-import StackIcon from "../../icons/Duplicate";
 import { Item, Storage } from "../../../lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
