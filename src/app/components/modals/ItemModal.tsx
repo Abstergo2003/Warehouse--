@@ -108,7 +108,7 @@ export default function ItemEditModal() {
 
       {/* 2. The Dialog components remain identical */}
       <Dialog isVisible={true} onBackdropPress={close}>
-        <div style={{padding: "20px", width: "400px"}}>
+        <div style={{padding: "20px", width: "100%", maxWidth: "400px"}} className="mobile-padding-compact">
           <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
               <h3>Create Item</h3>
               <span style={{cursor: "pointer", fontWeight: "bold"}} onClick={close}>X</span>

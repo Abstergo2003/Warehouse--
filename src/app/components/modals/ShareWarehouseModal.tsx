@@ -128,7 +128,7 @@ export default function ShareWarehouseModal() {
 
     return (
         <Dialog isVisible={true} onBackdropPress={close}>
-            <div style={{ padding: "20px", width: "480px", maxWidth: "100%" }}>
+            <div style={{ padding: "20px", width: "100%", maxWidth: "480px" }} className="mobile-padding-compact">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "15px" }}>
                     <h3 style={{ margin: 0 }}>Share Warehouse</h3>
                     <span style={{ cursor: "pointer", fontWeight: "bold", opacity: 0.7 }} onClick={close}>X</span>

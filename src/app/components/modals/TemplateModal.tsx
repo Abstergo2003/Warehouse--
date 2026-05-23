@@ -37,7 +37,7 @@ export default function TemplateModal() {
 
     return (
         <Dialog isVisible={true} onBackdropPress={close}>
-            <div style={{padding: "20px", width: "400px", maxHeight: "80vh", overflowY: "auto"}}>
+            <div style={{padding: "20px", width: "100%", maxWidth: "400px", maxHeight: "80vh", overflowY: "auto"}} className="mobile-padding-compact">
                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                     <h3>Create Template</h3>
                     <span style={{cursor: "pointer", fontWeight: "bold"}} onClick={close}>X</span>

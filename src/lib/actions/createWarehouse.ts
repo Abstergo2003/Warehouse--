@@ -46,6 +46,7 @@ export async function CreateWarehouseAction(formData: FormData) {
     }
     await createStorageQuery(name, ownerId, coords, +area, dbImageUrl || "");
     revalidatePath("/");
+    revalidatePath("/locations");
 }
 
 export async function UpdateWarehouseAction(formData: FormData, storageId: string) {

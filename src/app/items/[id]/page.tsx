@@ -4,10 +4,10 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import TrashIcon from "../../icons/Trash" 
 import StackIcon from "../../icons/Duplicate";
-import { Item } from "../../../lib/types";
+import { Item, Storage } from "../../../lib/types";
 import { useParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { deleteItemQuery, duplicateItemQuery, editItemQuery, getItemInfoQuery, getItemHistoryQuery, getUsersQuery, borrowItemQuery, returnItemQuery, listAllTemplatesQuery } from "@/lib/actions/queries";
+import { deleteItemQuery, duplicateItemQuery, editItemQuery, getItemInfoQuery, getItemHistoryQuery, getUsersQuery, borrowItemQuery, returnItemQuery, listAllTemplatesQuery, moveItemQuery, listAvailibleStoragesQuery } from "@/lib/actions/queries";
 import { editItemAction } from "@/lib/actions/createItem";
 import { NavPageContainer, InputText, LoaderBusy, Button, Dialog } from "react-windows-ui";
 import Link from "next/link";
@@ -26,9 +26,13 @@ export default function ItemPage() {
     const [templates, setTemplates] = useState<TemplatesRow[]>([]);
     const [showBorrowDialog, setShowBorrowDialog] = useState(false);
     const [showReturnDialog, setShowReturnDialog] = useState(false);
+    const [showMoveDialog, setShowMoveDialog] = useState(false);
     const [borrowToId, setBorrowToId] = useState("");
     const [borrowNotes, setBorrowToNotes] = useState("");
     const [returnNotes, setReturnNotes] = useState("");
+    const [moveTargetStorageId, setMoveTargetStorageId] = useState("");
+    const [moveNotes, setMoveNotes] = useState("");
+    const [storages, setStorages] = useState<Storage[]>([]);
     const [isEditing, setIsEditing] = useState(false);
 
     const [itemName, setItemName] = useState("");
@@ -53,10 +57,11 @@ export default function ItemPage() {
         const userId = session?.user?.id || "";
         
         // Always fetch basic data
-        const [itemData, historyData, usersData] = await Promise.all([
+        const [itemData, historyData, usersData, storagesData] = await Promise.all([
             getItemInfoQuery(userId, item_id),
             getItemHistoryQuery(item_id),
-            getUsersQuery()
+            getUsersQuery(),
+            listAvailibleStoragesQuery(userId)
         ]);
         
         if (itemData && itemData.name) {
@@ -73,6 +78,9 @@ export default function ItemPage() {
         
         setHistory(historyData);
         setUsers(usersData);
+        if (Array.isArray(storagesData)) {
+            setStorages(storagesData);
+        }
         setLoading(false);
 
         // Fetch templates separately if userId exists
@@ -119,7 +127,7 @@ export default function ItemPage() {
         if (confirm("Are you sure you want to delete this item?")) {
             const success = await deleteItemQuery(session?.user?.id || "", item_id);
             if (success) {
-                router.push(`/locations/${item?.storage_id || ''}`);
+                router.back();
             }
         }
     }
@@ -174,10 +182,11 @@ export default function ItemPage() {
     }
 
     const handleBorrow = async () => {
-        if (!session?.user?.id || !borrowToId) return;
-        const success = await borrowItemQuery(item_id, session.user.id, borrowToId, borrowNotes);
+        if (!session?.user?.id) return;
+        const success = await borrowItemQuery(item_id, session.user.id, session.user.id, borrowNotes);
         if (success) {
             setShowBorrowDialog(false);
+            setBorrowToNotes("");
             refreshData();
         }
     }
@@ -189,6 +198,19 @@ export default function ItemPage() {
             setShowReturnDialog(false);
             setReturnNotes("");
             refreshData();
+        }
+    }
+
+    const handleMove = async () => {
+        if (!session?.user?.id || !moveTargetStorageId) return;
+        const success = await moveItemQuery(item_id, session.user.id, moveTargetStorageId, moveNotes);
+        if (success) {
+            setShowMoveDialog(false);
+            setMoveNotes("");
+            setMoveTargetStorageId("");
+            refreshData();
+        } else {
+            alert("Failed to move the item to the selected storage location.");
         }
     }
 
@@ -217,13 +239,13 @@ export default function ItemPage() {
         <NavPageContainer>
             <div style={{ paddingBottom: '100px', height: '100%', overflowY: 'auto' }}>
                 {/* Header / Breadcrumb */}
-                <div style={{ padding: '20px 40px 0 40px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', opacity: 0.7 }}>
+                <div style={{ padding: '20px 40px 0 40px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', opacity: 0.7 }} className="mobile-padding-compact">
                     <Link href="/locations" style={{ color: 'inherit' }}>Inventory</Link>
                     <span>/</span>
                     <span>{item.name}</span>
                 </div>
 
-                <div style={{ padding: '20px 40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }}>
+                <div style={{ padding: '20px 40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '40px' }} className="mobile-grid-1 mobile-padding-compact">
                     
                     {/* Left Column: Images */}
                     <div>
@@ -280,7 +302,7 @@ export default function ItemPage() {
                     {/* Right Column: Details & Actions */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
                         <div>
-                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }} className="mobile-stack-flex">
                                 <span style={{ padding: '2px 10px', backgroundColor: '#332b4d', color: '#a38cf4', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>WAREHOUSE ITEM</span>
                                 <span style={{ padding: '2px 10px', backgroundColor: item.amount > 0 ? '#1c332d' : '#331c1c', color: item.amount > 0 ? '#4ade80' : '#ff4a4a', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
                                     {item.amount > 0 ? 'IN STOCK' : 'OUT OF STOCK'}
@@ -297,7 +319,7 @@ export default function ItemPage() {
                                     // style={{ fontSize: '48px', margin: '0 0 10px 0', fontWeight: '600', border: 'none', background: 'transparent' }}
                                 />
                             ) : (
-                                <h1 style={{ fontSize: '48px', margin: '0 0 10px 0', fontWeight: '600' }}>{item.name}</h1>
+                                <h1 style={{ fontSize: '48px', margin: '0 0 10px 0', fontWeight: '600' }} className="responsive-title-h1">{item.name}</h1>
                             )}
                                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginBottom: '10px' }}>
                                     <span style={{ fontSize: '16px', opacity: 0.6 }}>{item.amount} {item.unit_of_measurement} available in storage.</span>
@@ -316,13 +338,13 @@ export default function ItemPage() {
                             display: 'flex',
                             alignItems: 'center',
                             gap: '20px'
-                        }}>
+                        }} className="mobile-stack-flex">
                             <div style={{ width: '60px', height: '60px', backgroundColor: 'white', borderRadius: '4px', padding: '5px' }}>
                                 <Image unoptimized={true} src="/icons/icon.png" alt="QR" width={50} height={50} style={{ filter: 'invert(1)' }} />
                             </div>
                             <div>
                                 <div style={{ fontSize: '12px', opacity: 0.5, letterSpacing: '1px' }}>ASSET ID</div>
-                                <div style={{ fontSize: '20px', fontWeight: 'bold' }}>{item_id.toUpperCase()}</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', wordBreak: 'break-all' }}>{item_id.toUpperCase()}</div>
                                 <div style={{ fontSize: '12px', color: 'var(--primary)', cursor: 'pointer', marginTop: '5px' }}>
                                     <i className="icons10-print" style={{ marginRight: '5px' }}></i> PRINT LABEL
                                 </div>
@@ -330,7 +352,7 @@ export default function ItemPage() {
                         </div>
 
                         {/* Action Buttons */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }} className="mobile-grid-1">
                             <Button 
                                 type="primary"
                                 value={isEditing ? "Save Changes" : "Edit Details"}
@@ -371,7 +393,7 @@ export default function ItemPage() {
                 </div>
 
                 {/* Bottom Grid: Specs & Other Logs */}
-                <div style={{ padding: '0 40px 40px 40px', display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '30px' }}>
+                <div style={{ padding: '0 40px 40px 40px', display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '30px' }} className="mobile-grid-1 mobile-padding-compact">
                     
                     {/* Specifications Cards (Dynamic from Real Data) */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -381,9 +403,9 @@ export default function ItemPage() {
                                 backgroundColor: 'rgba(255,255,255,0.02)', 
                                 border: '1px solid rgba(255,255,255,0.05)', 
                                 borderRadius: '16px' 
-                            }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                                    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            }} className="mobile-padding-compact">
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }} className="mobile-stack-flex">
+                                    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '10px' }} className="responsive-title-h3">
                                         <i className="icons10-list" style={{ color: 'var(--primary)' }}></i> {category.name}
                                     </h3>
                                     {isEditing && (
@@ -405,7 +427,7 @@ export default function ItemPage() {
                                     )}
                                 </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }} className="mobile-grid-1">
                                     {category.fields.map((field, fldIdx) => (
                                         <div key={fldIdx}>
                                             <div style={{ fontSize: '11px', opacity: 0.4, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '5px' }}>{field.name}</div>
@@ -480,7 +502,7 @@ export default function ItemPage() {
                                     }}>
                                         <div>
                                             <div style={{ fontWeight: 'bold', fontSize: '14px', textTransform: 'capitalize' }}>
-                                                {h.action_type === 'borrow' ? 'Borrowed' : 'Returned'}
+                                                {h.action_type === 'borrow' ? 'Borrowed' : h.action_type === 'return' ? 'Returned' : h.action_type === 'move' ? 'Relocated' : h.action_type}
                                             </div>
                                             <div style={{ fontSize: '12px', opacity: 0.6 }}>{h.notes || 'No notes provided'}</div>
                                             <div style={{ fontSize: '11px', opacity: 0.4, marginTop: '4px' }}>by {h.display_name || h.email}</div>
@@ -544,6 +566,34 @@ export default function ItemPage() {
                                     ) : (
                                         <span style={{ fontWeight: 'bold' }}>{item.min_amount || 'Not set'} {item.unit_of_measurement}</span>
                                     )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Storage Location */}
+                        <div style={{ 
+                            padding: '30px', 
+                            backgroundColor: 'rgba(255,255,255,0.02)', 
+                            border: '1px solid rgba(255,255,255,0.05)', 
+                            borderRadius: '16px' 
+                        }}>
+                            <h3 style={{ margin: '0 0 25px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <i className="icons10-map-marker" style={{ color: '#ff4a4a' }}></i> Storage Location
+                            </h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '15px' }} className="mobile-stack-flex">
+                                <div>
+                                    <div style={{ fontWeight: 'bold', fontSize: '16px' }}>{(item as any).storage_name || 'Unassigned'}</div>
+                                    <div style={{ fontSize: '12px', opacity: 0.5 }}>ID: {item.storage_id}</div>
+                                </div>
+                                <div className="mobile-full-width">
+                                    <Button 
+                                        value="Move Location" 
+                                        onClick={() => {
+                                            setMoveTargetStorageId(item.storage_id || "");
+                                            setShowMoveDialog(true);
+                                        }} 
+                                        style={{ height: '36px', fontWeight: 'bold' }} 
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -614,21 +664,12 @@ export default function ItemPage() {
 
             {/* Borrow Dialog */}
             <Dialog isVisible={showBorrowDialog} onBackdropPress={() => setShowBorrowDialog(false)}>
-                <div style={{ padding: '30px', width: '400px' }}>
+                <div style={{ padding: '30px', width: '100%', maxWidth: '400px' }} className="mobile-padding-compact">
                     <h3>Borrow Asset</h3>
                     <br />
-                    <label>Select User</label><br />
-                    <select 
-                        value={borrowToId} 
-                        onChange={(e) => setBorrowToId(e.target.value)}
-                        style={{ width: '100%', padding: '10px', backgroundColor: 'var(--bg-dark)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
-                    >
-                        <option value="">Choose a user...</option>
-                        {users.map(u => (
-                            <option key={u.id} value={u.id}>{u.display_name || u.email}</option>
-                        ))}
-                    </select>
-                    <br /><br />
+                    <p style={{ margin: '0 0 20px 0', fontSize: '14px', opacity: 0.8, lineHeight: '1.5' }}>
+                        This asset will be registered as checked out under your account: <strong style={{ color: 'var(--primary)' }}>{session?.user?.name || session?.user?.email}</strong>.
+                    </p>
                     <InputText 
                         label="Notes"
                         placeholder="Purpose of borrowing..."
@@ -637,16 +678,20 @@ export default function ItemPage() {
                         width="100%"
                     />
                     <br />
-                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                        <Button value="Cancel" onClick={() => setShowBorrowDialog(false)} />
-                        <Button type="primary" value="Borrow" onClick={handleBorrow} disabled={!borrowToId} />
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} className="mobile-stack-flex">
+                        <div className="mobile-full-width">
+                            <Button value="Cancel" onClick={() => setShowBorrowDialog(false)} style={{ width: '100%' }} />
+                        </div>
+                        <div className="mobile-full-width">
+                            <Button type="primary" value="Confirm Borrow" onClick={handleBorrow} style={{ width: '100%' }} />
+                        </div>
                     </div>
                 </div>
             </Dialog>
 
             {/* Return Dialog */}
             <Dialog isVisible={showReturnDialog} onBackdropPress={() => setShowReturnDialog(false)}>
-                <div style={{ padding: '30px', width: '400px' }}>
+                <div style={{ padding: '30px', width: '100%', maxWidth: '400px' }} className="mobile-padding-compact">
                     <h3>Return Asset</h3>
                     <br />
                     <InputText 
@@ -657,9 +702,49 @@ export default function ItemPage() {
                         width="100%"
                     />
                     <br />
-                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                        <Button value="Cancel" onClick={() => setShowReturnDialog(false)} />
-                        <Button type="primary" value="Return Asset" onClick={handleReturn} />
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} className="mobile-stack-flex">
+                        <div className="mobile-full-width">
+                            <Button value="Cancel" onClick={() => setShowReturnDialog(false)} style={{ width: '100%' }} />
+                        </div>
+                        <div className="mobile-full-width">
+                            <Button type="primary" value="Return Asset" onClick={handleReturn} style={{ width: '100%' }} />
+                        </div>
+                    </div>
+                </div>
+            </Dialog>
+
+            {/* Move Dialog */}
+            <Dialog isVisible={showMoveDialog} onBackdropPress={() => setShowMoveDialog(false)}>
+                <div style={{ padding: '30px', width: '100%', maxWidth: '400px' }} className="mobile-padding-compact">
+                    <h3>Move Asset Location</h3>
+                    <br />
+                    <label>Select Target Storage</label><br />
+                    <select 
+                        value={moveTargetStorageId} 
+                        onChange={(e) => setMoveTargetStorageId(e.target.value)}
+                        style={{ width: '100%', padding: '10px', backgroundColor: 'var(--bg-dark)', border: '1px solid var(--border)', borderRadius: '4px', color: 'white' }}
+                    >
+                        <option value="">Choose a storage location...</option>
+                        {storages.map(s => (
+                            <option key={s.id} value={s.id}>{s.name}</option>
+                        ))}
+                    </select>
+                    <br /><br />
+                    <InputText 
+                        label="Transfer Notes"
+                        placeholder="Reason for moving or specific shelf/bin info..."
+                        value={moveNotes}
+                        onChange={(e: any) => setMoveNotes(e.target.value)}
+                        width="100%"
+                    />
+                    <br />
+                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} className="mobile-stack-flex">
+                        <div className="mobile-full-width">
+                            <Button value="Cancel" onClick={() => setShowMoveDialog(false)} style={{ width: '100%' }} />
+                        </div>
+                        <div className="mobile-full-width">
+                            <Button type="primary" value="Move Asset" onClick={handleMove} disabled={!moveTargetStorageId || moveTargetStorageId === item.storage_id} style={{ width: '100%' }} />
+                        </div>
                     </div>
                 </div>
             </Dialog>

@@ -17,13 +17,16 @@ export default async function LoginPage() {
         height: 'calc(100vh - 100px)' 
       }}>
         <div style={{ 
-          width: '450px', 
+          width: '100%',
+          maxWidth: '450px', 
           padding: '40px', 
           border: '1px solid var(--border)', 
           borderRadius: '8px', 
           backgroundColor: 'rgba(255,255,255,0.05)',
           textAlign: 'center' 
-        }}>
+        }}
+        className="mobile-padding-compact"
+        >
           <Image 
             unoptimized={true}
             src="/icons/icon.png" 

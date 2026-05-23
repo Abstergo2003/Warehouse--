@@ -55,8 +55,8 @@ export function Table(props: {
             borderRadius: '4px',
             overflowX: 'auto',
             backgroundColor: 'var(--color-card-bg-default)',
-            maxWidth: "1200px",
-            width: "1200px"
+            maxWidth: "100%",
+            width: "100%"
         }}>
             <table className="ui-table-view" style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>

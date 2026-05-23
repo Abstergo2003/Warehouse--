@@ -59,6 +59,7 @@ export async function createItemAction(formData: FormData) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const queryResult = await createItemQuery(name, amount, unit, dbImageUrl || "", storage_id, ownerId, JSON.stringify(formatData));
   revalidatePath("/");
+  revalidatePath(`/locations/${storage_id}`);
 }
 
 export async function editItemAction(formData: FormData) {
@@ -114,6 +115,7 @@ export async function editItemAction(formData: FormData) {
   );
 
   revalidatePath("/");
+  revalidatePath(`/locations/${storage_id}`);
   revalidatePath(`/items/${item_id}`);
   return success;
 }

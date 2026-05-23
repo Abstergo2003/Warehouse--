@@ -96,7 +96,7 @@ export default function LocationByID() {
 
     return (
         <NavPageContainer>
-            <div style={{ height: '250px', width: '100%', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ height: '250px', width: '100%', position: 'relative', overflow: 'hidden' }} className="responsive-banner-container">
                 <Image 
                     unoptimized={true}
                     src={storage.img_url || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTvrQDevxLylxtjB6kG5bRLqoJ8m4ZxjKc7GQ&s"} 
@@ -114,9 +114,9 @@ export default function LocationByID() {
                     display: 'flex',
                     alignItems: 'flex-end',
                     justifyContent: 'space-between'
-                }}>
+                }} className="responsive-banner-overlay">
                     <div>
-                        <h1 style={{ margin: 0, fontSize: '36px', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>{storage.name}</h1>
+                        <h1 style={{ margin: 0, fontSize: '36px', color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }} className="responsive-title-h1">{storage.name}</h1>
                         <div style={{ display: 'flex', gap: '15px', marginTop: '10px' }}>
                              <p style={{ 
                                 display: 'inline-block',
@@ -134,20 +134,21 @@ export default function LocationByID() {
                             </p>
                         </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px' }} className="mobile-stack-flex">
                         {storage.effective_role === 'owner' && (
                             <>
-                                <Link href={`?modal=share-warehouse&storageId=${storageId}`}>
-                                    <button style={{ padding: '10px 20px', backgroundColor: 'var(--primary)', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: 'white' }}>
+                                <Link href={`?modal=share-warehouse&storageId=${storageId}`} className="mobile-full-width">
+                                    <button style={{ padding: '12px 20px', backgroundColor: 'var(--primary)', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: 'white', width: '100%' }} className="mobile-full-width">
                                         Share Space
                                     </button>
                                 </Link>
-                                <Link href={`?modal=add-warehouse&editId=${storageId}`}>
-                                    <button style={{ padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: 'white' }}>Edit Details</button>
+                                <Link href={`?modal=add-warehouse&editId=${storageId}`} className="mobile-full-width">
+                                    <button style={{ padding: '12px 20px', backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: 'white', width: '100%' }} className="mobile-full-width">Edit Details</button>
                                 </Link>
                                 <button 
                                     onClick={handleDelete}
-                                    style={{ padding: '10px 20px', backgroundColor: 'rgba(255, 59, 48, 0.8)', border: 'none', borderRadius: '4px', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}
+                                    style={{ padding: '12px 20px', backgroundColor: 'rgba(255, 59, 48, 0.8)', border: 'none', borderRadius: '4px', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}
+                                    className="mobile-full-width"
                                 >
                                     Delete Warehouse
                                 </button>
@@ -161,7 +162,7 @@ export default function LocationByID() {
                 width: '95%', 
                 margin: '0 auto', 
                 padding: '30px 0' 
-            }}>
+            }} className="mobile-padding-compact">
                 {shares.length > 0 && (
                     <div style={{ 
                         marginBottom: '30px', 
@@ -172,7 +173,7 @@ export default function LocationByID() {
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '10px'
-                    }}>
+                    }} className="mobile-padding-compact">
                         <h4 style={{ margin: 0, fontSize: '13px', opacity: 0.6 }}>Shared with:</h4>
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                             {shares.map(share => (
@@ -200,10 +201,10 @@ export default function LocationByID() {
                     </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h2 style={{ margin: 0 }}>Inventory Overview</h2>
-                    <Link href={`?modal=add-item&storageId=${storageId}`}>
-                        <button style={{ padding: '10px 25px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }} className="mobile-stack-flex">
+                    <h2 style={{ margin: 0 }} className="responsive-title-h3">Inventory Overview</h2>
+                    <Link href={`?modal=add-item&storageId=${storageId}`} className="mobile-full-width">
+                        <button style={{ padding: '12px 25px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', width: '100%' }} className="mobile-full-width">
                             + Add New Item
                         </button>
                     </Link>

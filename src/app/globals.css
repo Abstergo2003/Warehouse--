@@ -187,12 +187,89 @@ a {
   outline: none;
   height: 30px;
 }
-.ui-page-container {
-  position: absolute;
-  left: 14vw;
-  right: 0;
-  bottom: 0;
-  top:0;
+@media (min-width: 769px) {
+  .ui-page-container {
+    position: absolute;
+    left: 14vw;
+    right: 0;
+    bottom: 0;
+    top: 0;
+  }
+}
+@media (max-width: 768px) {
+  body {
+    overflow-x: hidden !important;
+    width: 100vw;
+  }
+  .ui-page-container {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: 100vh !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 10px 15px !important;
+    position: absolute !important;
+    top: 0;
+  }
+}
+
+/* Premium Responsive Utilities */
+@media (max-width: 768px) {
+  .mobile-stack-flex {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 15px !important;
+  }
+  .mobile-stack-flex-end {
+    justify-content: flex-start !important;
+  }
+  .mobile-grid-1 {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+  .mobile-grid-2 {
+    grid-template-columns: 1fr !important;
+    gap: 15px !important;
+  }
+  .mobile-grid-4 {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+    gap: 10px !important;
+  }
+  .mobile-padding-compact {
+    padding: 15px !important;
+  }
+  .mobile-padding-none {
+    padding: 0 !important;
+  }
+  .responsive-title-h1 {
+    font-size: 28px !important;
+  }
+  .responsive-title-h3 {
+    font-size: 20px !important;
+  }
+  .mobile-full-width {
+    width: 100% !important;
+  }
+  .mobile-hide {
+    display: none !important;
+  }
+  .responsive-banner-container {
+    height: auto !important;
+    min-height: 280px !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  .responsive-banner-overlay {
+    position: relative !important;
+    padding: 20px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 15px !important;
+    background: rgba(0, 0, 0, 0.85) !important;
+    margin-top: auto !important;
+  }
 }
 .ui-input-label {
   width: 200px !important;
@@ -319,3 +396,30 @@ a {
     @apply hidden;
   }
 } */
+
+.save-changes-btn {
+  position: fixed;
+  bottom: 40px;
+  right: -300px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  padding: 12px 30px;
+  background-color: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  font-weight: bold;
+  z-index: 100;
+}
+.save-changes-btn.dirty {
+  right: 40px;
+}
+@media (max-width: 768px) {
+  .save-changes-btn {
+    bottom: 20px;
+  }
+  .save-changes-btn.dirty {
+    right: 20px;
+  }
+}

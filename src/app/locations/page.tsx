@@ -39,11 +39,11 @@ export default function LocationsPage() {
 
     return (
         <WindowsPageContainer>
-            <div style={{ padding: '20px' }}>
-                <h1 style={{ marginBottom: '20px' }}>Warehouses</h1>
+            <div style={{ padding: '20px' }} className="mobile-padding-compact">
+                <h1 style={{ marginBottom: '20px' }} className="responsive-title-h1">Warehouses</h1>
                 <div style={{ 
                     display: 'grid', 
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
                     gap: '20px' 
                 }}>
                     {storages.length > 0 ? storages.map(storage => (
@@ -87,22 +87,24 @@ function Location(props: {
             <div style={{ padding: '15px' }}>
                 <h3 style={{ margin: 0 }}>{props.data.name}</h3>
                 <br />
-                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-                    <a href={`/locations/${props.data.id}`}>
+                <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }} className="mobile-stack-flex">
+                    <a href={`/locations/${props.data.id}`} className="mobile-full-width">
                         <button
                             onMouseEnter={()=>{inspectRef.current?.startAnimation()}}
                             onMouseLeave={() => inspectRef.current?.stopAnimation()}
-                            style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid var(--border)', background: 'none' }}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '10px 12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid var(--border)', background: 'none' }}
+                            className="mobile-full-width"
                         >
                             <EyeIcon ref={inspectRef} size={16}></EyeIcon>
                             <span>Inspect</span>
                         </button>
                     </a>
-                    <a target='_blank' href={`https://www.google.com/maps/dir//${props.data.localization.lat},${props.data.localization.lon}/`}>
+                    <a target='_blank' href={`https://www.google.com/maps/dir//${props.data.localization.lat},${props.data.localization.lon}/`} className="mobile-full-width">
                         <button
                             onMouseEnter={()=>{navigationRef.current?.startAnimation()}}
                             onMouseLeave={() => navigationRef.current?.stopAnimation()}
-                            style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '5px 12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid var(--border)', background: 'none' }}
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '10px 12px', cursor: 'pointer', borderRadius: '4px', border: '1px solid var(--border)', background: 'none' }}
+                            className="mobile-full-width"
                         >
                             <MousePointer2Icon ref={navigationRef} size={16}></MousePointer2Icon>
                             <span>Navigate</span>

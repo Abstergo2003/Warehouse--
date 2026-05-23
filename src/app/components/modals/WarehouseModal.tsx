@@ -95,7 +95,7 @@ export default function WarehouseEditModal() {
 
   return (
     <Dialog isVisible={true} onBackdropPress={close}>
-        <div style={{padding: "20px", width: "450px"}}>
+        <div style={{padding: "20px", width: "100%", maxWidth: "450px"}} className="mobile-padding-compact">
             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                 <h3>{isEdit ? "Edit Warehouse" : "Create Warehouse"}</h3>
                 <span style={{cursor: "pointer", fontWeight: "bold"}} onClick={close}>X</span>

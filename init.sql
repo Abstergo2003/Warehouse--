@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS item (
     is_damaged BOOLEAN DEFAULT false,
     last_borrowed_to UUID REFERENCES users(id),
     owner_id UUID NOT NULL REFERENCES users(id),
-    storage_id UUID REFERENCES storage(id),
+    storage_id UUID REFERENCES storage(id) ON DELETE CASCADE,
     min_amount REAL DEFAULT 0,
     data JSON
 );
