@@ -7,6 +7,7 @@ import { getMaintenanceItemsQuery } from "@/lib/actions/queries";
 import { LoaderBusy } from "react-windows-ui";
 import { Table } from "@/app/components/table";
 import Link from "next/link";
+import { withOfflineCache } from "@/lib/offlineCache";
 
 export default function MaintenancePage() {
     const { data: session } = useSession();
@@ -15,7 +16,8 @@ export default function MaintenancePage() {
 
     useEffect(() => {
         if (session?.user?.id) {
-            getMaintenanceItemsQuery(session.user.id).then((data) => {
+            const userId = session.user.id;
+            withOfflineCache<any>(`maintenance:${userId}`, () => getMaintenanceItemsQuery(userId), []).then((data) => {
                 setItems(data || []);
                 setLoading(false);
             });

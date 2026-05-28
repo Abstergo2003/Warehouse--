@@ -9,6 +9,7 @@ import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
 import { getStorageInfoQuery, listAllItemsInStorageQuery, getStorageSharesQuery } from "@/lib/actions/queries"
 import { DeleteWarehouseAction } from "@/lib/actions/createWarehouse"
+import { withOfflineCache } from "@/lib/offlineCache"
 
 export default function LocationByID() {
     const params = useParams();
@@ -23,13 +24,29 @@ export default function LocationByID() {
     const [shares, setShares] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isOffline, setIsOffline] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setIsOffline(!navigator.onLine);
+            const handleOnline = () => setIsOffline(false);
+            const handleOffline = () => setIsOffline(true);
+            window.addEventListener('online', handleOnline);
+            window.addEventListener('offline', handleOffline);
+            return () => {
+                window.removeEventListener('online', handleOnline);
+                window.removeEventListener('offline', handleOffline);
+            };
+        }
+    }, []);
 
     useEffect(() => {
         if (session?.user?.id && storageId) {
+            const userId = session.user.id;
             Promise.all([
-                getStorageInfoQuery(storageId, session.user.id),
-                listAllItemsInStorageQuery(storageId, session.user.id),
-                getStorageSharesQuery(storageId, session.user.id)
+                withOfflineCache<any>(`storage_info:${storageId}`, () => getStorageInfoQuery(storageId, userId), null),
+                withOfflineCache<any>(`storage_items:${storageId}`, () => listAllItemsInStorageQuery(storageId, userId), []),
+                withOfflineCache<any>(`storage_shares:${storageId}`, () => getStorageSharesQuery(storageId, userId), [])
             ]).then(([storageData, itemsData, sharesData]) => {
                 setStorage(storageData);
                 setItems(itemsData || []);
@@ -137,20 +154,22 @@ export default function LocationByID() {
                     <div style={{ display: 'flex', gap: '10px' }} className="mobile-stack-flex">
                         {storage.effective_role === 'owner' && (
                             <>
-                                <Link href={`?modal=share-warehouse&storageId=${storageId}`} className="mobile-full-width">
-                                    <button style={{ padding: '12px 20px', backgroundColor: 'var(--primary)', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: 'white', width: '100%' }} className="mobile-full-width">
-                                        Share Space
+                                <Link href={isOffline ? '#' : `?modal=share-warehouse&storageId=${storageId}`} className="mobile-full-width" onClick={(e) => isOffline && e.preventDefault()}>
+                                    <button disabled={isOffline} style={{ padding: '12px 20px', backgroundColor: isOffline ? 'rgba(255,255,255,0.05)' : 'var(--primary)', border: 'none', borderRadius: '4px', cursor: isOffline ? 'not-allowed' : 'pointer', fontWeight: 'bold', color: isOffline ? 'rgba(255,255,255,0.3)' : 'white', width: '100%' }} className="mobile-full-width" title={isOffline ? "Cannot share space while offline" : ""}>
+                                        Share Space {isOffline && "🔒"}
                                     </button>
                                 </Link>
-                                <Link href={`?modal=add-warehouse&editId=${storageId}`} className="mobile-full-width">
-                                    <button style={{ padding: '12px 20px', backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', color: 'white', width: '100%' }} className="mobile-full-width">Edit Details</button>
+                                <Link href={isOffline ? '#' : `?modal=add-warehouse&editId=${storageId}`} className="mobile-full-width" onClick={(e) => isOffline && e.preventDefault()}>
+                                    <button disabled={isOffline} style={{ padding: '12px 20px', backgroundColor: isOffline ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.1)', backdropFilter: isOffline ? 'none' : 'blur(10px)', border: isOffline ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(255,255,255,0.2)', borderRadius: '4px', cursor: isOffline ? 'not-allowed' : 'pointer', fontWeight: 'bold', color: isOffline ? 'rgba(255,255,255,0.3)' : 'white', width: '100%' }} className="mobile-full-width" title={isOffline ? "Cannot edit details while offline" : ""}>Edit Details {isOffline && "🔒"}</button>
                                 </Link>
                                 <button 
+                                    disabled={isOffline}
                                     onClick={handleDelete}
-                                    style={{ padding: '12px 20px', backgroundColor: 'rgba(255, 59, 48, 0.8)', border: 'none', borderRadius: '4px', cursor: 'pointer', color: 'white', fontWeight: 'bold' }}
+                                    style={{ padding: '12px 20px', backgroundColor: isOffline ? 'rgba(255,255,255,0.05)' : 'rgba(255, 59, 48, 0.8)', border: 'none', borderRadius: '4px', cursor: isOffline ? 'not-allowed' : 'pointer', color: isOffline ? 'rgba(255,255,255,0.3)' : 'white', fontWeight: 'bold' }}
                                     className="mobile-full-width"
+                                    title={isOffline ? "Cannot delete warehouse while offline" : ""}
                                 >
-                                    Delete Warehouse
+                                    Delete Warehouse {isOffline && "🔒"}
                                 </button>
                             </>
                         )}
@@ -203,9 +222,9 @@ export default function LocationByID() {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }} className="mobile-stack-flex">
                     <h2 style={{ margin: 0 }} className="responsive-title-h3">Inventory Overview</h2>
-                    <Link href={`?modal=add-item&storageId=${storageId}`} className="mobile-full-width">
-                        <button style={{ padding: '12px 25px', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold', fontSize: '15px', width: '100%' }} className="mobile-full-width">
-                            + Add New Item
+                    <Link href={isOffline ? '#' : `?modal=add-item&storageId=${storageId}`} className="mobile-full-width" onClick={(e) => isOffline && e.preventDefault()}>
+                        <button disabled={isOffline} style={{ padding: '12px 25px', backgroundColor: isOffline ? 'rgba(255,255,255,0.05)' : 'var(--primary)', color: isOffline ? 'rgba(255,255,255,0.3)' : 'white', border: 'none', borderRadius: '4px', cursor: isOffline ? 'not-allowed' : 'pointer', fontWeight: 'bold', fontSize: '15px', width: '100%' }} className="mobile-full-width" title={isOffline ? "Cannot add items while offline" : ""}>
+                            {isOffline ? "Add New Item (Disabled 🔒)" : "+ Add New Item"}
                         </button>
                     </Link>
                 </div>

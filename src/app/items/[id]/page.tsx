@@ -11,6 +11,7 @@ import { editItemAction } from "@/lib/actions/createItem";
 import { NavPageContainer, InputText, LoaderBusy, Button, Dialog } from "react-windows-ui";
 import Link from "next/link";
 import { TemplatesRow } from "@/lib/types";
+import { withOfflineCache } from "@/lib/offlineCache";
 
 export default function ItemPage() {
     const params = useParams();
@@ -33,6 +34,7 @@ export default function ItemPage() {
     const [moveNotes, setMoveNotes] = useState("");
     const [storages, setStorages] = useState<Storage[]>([]);
     const [isEditing, setIsEditing] = useState(false);
+    const [isOffline, setIsOffline] = useState(false);
 
     const [itemName, setItemName] = useState("");
     const [itemAmount, setItemAmount] = useState<number>(0);
@@ -52,15 +54,29 @@ export default function ItemPage() {
         }
     };
 
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            setIsOffline(!navigator.onLine);
+            const handleOnline = () => setIsOffline(false);
+            const handleOffline = () => setIsOffline(true);
+            window.addEventListener('online', handleOnline);
+            window.addEventListener('offline', handleOffline);
+            return () => {
+                window.removeEventListener('online', handleOnline);
+                window.removeEventListener('offline', handleOffline);
+            };
+        }
+    }, []);
+
     const refreshData = async () => {
         const userId = session?.user?.id || "";
         
         // Always fetch basic data
         const [itemData, historyData, usersData, storagesData] = await Promise.all([
-            getItemInfoQuery(userId, item_id),
-            getItemHistoryQuery(item_id),
-            getUsersQuery(),
-            listAvailibleStoragesQuery(userId)
+            withOfflineCache<any>(`item_info:${item_id}`, () => getItemInfoQuery(userId, item_id), null),
+            withOfflineCache<any>(`item_history:${item_id}`, () => getItemHistoryQuery(item_id), []),
+            withOfflineCache<any>(`users`, () => getUsersQuery(), []),
+            withOfflineCache<any>(`storages:${userId}`, () => listAvailibleStoragesQuery(userId), [])
         ]);
         
         if (itemData && itemData.name) {
@@ -84,7 +100,7 @@ export default function ItemPage() {
 
         // Fetch templates separately if userId exists
         if (userId) {
-            const templatesData = await listAllTemplatesQuery(userId);
+            const templatesData = await withOfflineCache<any>(`templates:${userId}`, () => listAllTemplatesQuery(userId), []);
             if (Array.isArray(templatesData)) {
                 setTemplates(templatesData);
             }
@@ -353,39 +369,45 @@ export default function ItemPage() {
                         {/* Action Buttons */}
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }} className="mobile-grid-1">
                             <Button 
-                                type="primary"
-                                value={isEditing ? "Save Changes" : "Edit Details"}
+                                type={isOffline ? "default" : "primary"}
+                                value={isOffline ? "Edit Details (Disabled 🔒)" : isEditing ? "Save Changes" : "Edit Details"}
                                 onClick={async () => {
+                                    if (isOffline) return;
                                     if (isEditing) {
                                         await handleSave();
                                     }
                                     setIsEditing(!isEditing);
                                 }}
-                                style={{ height: '45px', fontWeight: 'bold' }}
+                                disabled={isOffline}
+                                style={{ height: '45px', fontWeight: 'bold', opacity: isOffline ? 0.5 : 1, cursor: isOffline ? 'not-allowed' : 'pointer' }}
                             />
                             {item.is_borrowed ? (
                                 <Button 
-                                    value="Return to Storage"
-                                    onClick={() => setShowReturnDialog(true)}
-                                    style={{ height: '45px', fontWeight: 'bold', backgroundColor: '#1c332d', color: '#4ade80' }}
+                                    value={isOffline ? "Return (Disabled 🔒)" : "Return to Storage"}
+                                    onClick={() => !isOffline && setShowReturnDialog(true)}
+                                    disabled={isOffline}
+                                    style={{ height: '45px', fontWeight: 'bold', backgroundColor: isOffline ? 'rgba(255,255,255,0.05)' : '#1c332d', color: isOffline ? 'rgba(255,255,255,0.3)' : '#4ade80', opacity: isOffline ? 0.5 : 1, cursor: isOffline ? 'not-allowed' : 'pointer' }}
                                 />
                             ) : (
                                 <Button 
-                                    value="Mark as Borrowed"
-                                    onClick={() => setShowBorrowDialog(true)}
-                                    style={{ height: '45px', fontWeight: 'bold', backgroundColor: '#33261c', color: '#fbbf24' }}
+                                    value={isOffline ? "Borrow (Disabled 🔒)" : "Mark as Borrowed"}
+                                    onClick={() => !isOffline && setShowBorrowDialog(true)}
+                                    disabled={isOffline}
+                                    style={{ height: '45px', fontWeight: 'bold', backgroundColor: isOffline ? 'rgba(255,255,255,0.05)' : '#33261c', color: isOffline ? 'rgba(255,255,255,0.3)' : '#fbbf24', opacity: isOffline ? 0.5 : 1, cursor: isOffline ? 'not-allowed' : 'pointer' }}
                                 />
                             )}
                             <Button 
-                                value="Duplicate"
-                                onClick={handleDuplicate}
-                                style={{ height: '45px', fontWeight: 'bold', backgroundColor: 'rgba(255,255,255,0.05)' }}
+                                value={isOffline ? "Duplicate (Disabled 🔒)" : "Duplicate"}
+                                onClick={() => !isOffline && handleDuplicate()}
+                                disabled={isOffline}
+                                style={{ height: '45px', fontWeight: 'bold', backgroundColor: 'rgba(255,255,255,0.05)', opacity: isOffline ? 0.5 : 1, cursor: isOffline ? 'not-allowed' : 'pointer' }}
                             />
                             <Button 
                                 type="danger"
-                                value="Delete Asset"
-                                onClick={handleDelete}
-                                style={{ height: '45px', fontWeight: 'bold' }}
+                                value={isOffline ? "Delete (Disabled 🔒)" : "Delete Asset"}
+                                onClick={() => !isOffline && handleDelete()}
+                                disabled={isOffline}
+                                style={{ height: '45px', fontWeight: 'bold', opacity: isOffline ? 0.5 : 1, cursor: isOffline ? 'not-allowed' : 'pointer' }}
                             />
                         </div>
                     </div>
@@ -586,12 +608,14 @@ export default function ItemPage() {
                                 </div>
                                 <div className="mobile-full-width">
                                     <Button 
-                                        value="Move Location" 
+                                        value={isOffline ? "Move (Disabled 🔒)" : "Move Location"} 
                                         onClick={() => {
+                                            if (isOffline) return;
                                             setMoveTargetStorageId(item.storage_id || "");
                                             setShowMoveDialog(true);
                                         }} 
-                                        style={{ height: '36px', fontWeight: 'bold' }} 
+                                        disabled={isOffline}
+                                        style={{ height: '36px', fontWeight: 'bold', opacity: isOffline ? 0.5 : 1, cursor: isOffline ? 'not-allowed' : 'pointer' }} 
                                     />
                                 </div>
                             </div>

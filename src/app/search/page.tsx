@@ -7,6 +7,7 @@ import WindowsPageContainer from "@/app/components/WindowsPageContainer";
 import { InputSearchBar, LoaderBusy } from "react-windows-ui";
 import { Table } from "@/app/components/table";
 import Link from "next/link";
+import { withOfflineCache, getCachedAllItems } from "@/lib/offlineCache";
 
 export default function SearchPage() {
     const { data: session } = useSession();
@@ -17,10 +18,43 @@ export default function SearchPage() {
     const handleSearch = useCallback(async (term: string) => {
         setSearchTerm(term);
         if (session?.user?.id) {
+            const userId = session.user.id;
             setLoading(true);
-            const searchResults = await searchItemsQuery(session.user.id, term);
-            setResults(searchResults || []);
-            setLoading(false);
+            try {
+                const isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
+                if (isOnline) {
+                    // Wrap empty query cache so we capture the master list
+                    const cacheKey = term === "" ? `search_all:${userId}` : `search_term:${userId}:${term}`;
+                    const searchResults = await withOfflineCache<any>(cacheKey, () => searchItemsQuery(userId, term), []);
+                    setResults(searchResults || []);
+                } else {
+                    // Offline local scan!
+                    const cachedItems = getCachedAllItems();
+                    if (term === "") {
+                        setResults(cachedItems);
+                    } else {
+                        const filtered = cachedItems.filter(item => 
+                            item.name?.toLowerCase().includes(term.toLowerCase()) || 
+                            item.storage_name?.toLowerCase().includes(term.toLowerCase())
+                        );
+                        setResults(filtered);
+                    }
+                }
+            } catch (err) {
+                console.warn("Search query failed, falling back to local scan", err);
+                const cachedItems = getCachedAllItems();
+                if (term === "") {
+                    setResults(cachedItems);
+                } else {
+                    const filtered = cachedItems.filter(item => 
+                        item.name?.toLowerCase().includes(term.toLowerCase()) || 
+                        item.storage_name?.toLowerCase().includes(term.toLowerCase())
+                    );
+                    setResults(filtered);
+                }
+            } finally {
+                setLoading(false);
+            }
         } else {
             setResults([]);
         }

@@ -83,7 +83,12 @@ export default function WarehouseEditModal() {
     } else {
         await CreateWarehouseAction(formData);
     }
-    close();
+    
+    // Perform a full browser reload without modal parameters to fetch fresh data and update offline caches
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("modal");
+    params.delete("editId");
+    window.location.href = `${pathname}?${params.toString()}`;
   };
 
   const close = () => {

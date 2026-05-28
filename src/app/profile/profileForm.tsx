@@ -16,6 +16,100 @@ export function ProfileForm({ user, borrowedItems }: { user: any; borrowedItems:
     const [localBorrowedItems, setLocalBorrowedItems] = useState<any[]>(borrowedItems);
     const [returningId, setReturningId] = useState<string | null>(null);
 
+    const [pushSupported, setPushSupported] = useState(false);
+    const [pushSubscribed, setPushSubscribed] = useState(false);
+    const [submittingPush, setSubmittingPush] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window) {
+            setPushSupported(true);
+            
+            navigator.serviceWorker.ready.then(async (registration) => {
+                const subscription = await registration.pushManager.getSubscription();
+                setPushSubscribed(!!subscription);
+            }).catch(err => {
+                console.error("Error checking push subscription:", err);
+            });
+        }
+    }, []);
+
+    const handleSubscribePush = async () => {
+        setSubmittingPush(true);
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission !== "granted") {
+                alert("Permission for notifications was denied.");
+                setSubmittingPush(false);
+                return;
+            }
+
+            const registration = await navigator.serviceWorker.ready;
+            const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "BMOISFO2qqAt-3KTIoTCaL1pqLTTUSEqwydamWthl8qvn-4kwj7LFcCoZjlsuGtMiyYlMZTII-oQUxidokE7850";
+            
+            if (!publicVapidKey) {
+                alert("VAPID public key is not configured.");
+                setSubmittingPush(false);
+                return;
+            }
+
+            const convertedVapidKey = urlBase64ToUint8Array(publicVapidKey);
+
+            const subscription = await registration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: convertedVapidKey
+            });
+
+            const response = await fetch("/api/notifications/subscribe", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(subscription)
+            });
+
+            if (response.ok) {
+                setPushSubscribed(true);
+                alert("Push notifications enabled successfully!");
+            } else {
+                alert("Failed to save push subscription on the server.");
+            }
+        } catch (error) {
+            console.error("Error enabling push notifications:", error);
+            alert("An error occurred while enabling notifications.");
+        } finally {
+            setSubmittingPush(false);
+        }
+    };
+
+    const handleUnsubscribePush = async () => {
+        setSubmittingPush(true);
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+            if (subscription) {
+                await subscription.unsubscribe();
+                setPushSubscribed(false);
+                alert("Push notifications disabled.");
+            }
+        } catch (error) {
+            console.error("Error disabling push notifications:", error);
+            alert("An error occurred while disabling notifications.");
+        } finally {
+            setSubmittingPush(false);
+        }
+    };
+
+    function urlBase64ToUint8Array(base64String: string) {
+        const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    }
+
     useEffect(() => {
         setLocalBorrowedItems(borrowedItems);
     }, [borrowedItems]);
@@ -117,6 +211,57 @@ export function ProfileForm({ user, borrowedItems }: { user: any; borrowedItems:
                     />
                     <br />
                     
+                    {pushSupported && (
+                        <div style={{
+                            textAlign: 'left',
+                            padding: '15px',
+                            backgroundColor: 'rgba(255,255,255,0.03)',
+                            border: '1px solid rgba(255,255,255,0.06)',
+                            borderRadius: '8px',
+                            marginBottom: '20px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <i className="icons10-notification" style={{ fontSize: '18px', color: pushSubscribed ? '#4ade80' : '#a38cf4' }}></i>
+                                <span style={{ fontWeight: '600', fontSize: '14px', color: 'white' }}>Push Notifications</span>
+                                <span style={{
+                                    marginLeft: 'auto',
+                                    fontSize: '11px',
+                                    padding: '2px 6px',
+                                    borderRadius: '4px',
+                                    backgroundColor: pushSubscribed ? 'rgba(74,222,128,0.1)' : 'rgba(255,255,255,0.05)',
+                                    color: pushSubscribed ? '#4ade80' : 'rgba(255,255,255,0.5)',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {pushSubscribed ? 'ENABLED' : 'DISABLED'}
+                                </span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '12px', opacity: 0.5, lineHeight: '1.4', color: 'white' }}>
+                                Get alerts when assets in your warehouses are damaged, restocked, or overdue.
+                            </p>
+                            <button
+                                onClick={pushSubscribed ? handleUnsubscribePush : handleSubscribePush}
+                                disabled={submittingPush}
+                                style={{
+                                    width: '100%',
+                                    padding: '8px',
+                                    backgroundColor: pushSubscribed ? 'rgba(255, 255, 255, 0.05)' : 'var(--primary)',
+                                    color: 'white',
+                                    border: pushSubscribed ? '1px solid rgba(255, 255, 255, 0.1)' : 'none',
+                                    borderRadius: '4px',
+                                    fontWeight: 'bold',
+                                    fontSize: '13px',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.2s',
+                                }}
+                            >
+                                {submittingPush ? 'Processing...' : pushSubscribed ? 'Disable Notifications' : 'Enable Notifications'}
+                            </button>
+                        </div>
+                    )}
+
                     <button 
                         onMouseEnter={()=>{iconRef.current?.startAnimation()}}
                         onMouseLeave={() => iconRef.current?.stopAnimation()}

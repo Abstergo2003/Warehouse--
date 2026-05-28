@@ -87,7 +87,11 @@ export default function ItemEditModal() {
     }
 
     await createItemAction(formData);
-    close();
+    
+    // Perform a full browser reload without modal parameters to fetch fresh data and update offline caches
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("modal");
+    window.location.href = `${pathname}?${params.toString()}`;
   };
 
   const close = () => {

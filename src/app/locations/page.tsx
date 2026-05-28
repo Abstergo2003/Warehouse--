@@ -11,6 +11,7 @@ import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { listAvailibleStoragesQuery } from '@/lib/actions/queries';
 import { LoaderBusy } from 'react-windows-ui';
+import { withOfflineCache } from '@/lib/offlineCache';
 
 export default function LocationsPage() {
     const { data: session } = useSession();
@@ -20,7 +21,8 @@ export default function LocationsPage() {
 
     useEffect(() => {
         if (session?.user?.id) {
-            listAvailibleStoragesQuery(session.user.id).then(data => {
+            const userId = session.user.id;
+            withOfflineCache<any>(`storages:${userId}`, () => listAvailibleStoragesQuery(userId), []).then(data => {
                 setStorages(data || []);
                 setLoading(false);
             });

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 // STORAGE
 import db from '@/lib/db'
+import { checkAndTriggerItemMaintenanceNotification, sendNotificationToStorageUsers } from '@/lib/notifications'
 
 
 export async function createStorageQuery(name: string, user_id: string, localization: string, storage_area: number, img_url: string) {
@@ -99,6 +100,11 @@ export async function listAllItemsInStorageQuery(storage_id: string, user_id: st
 
 export async function editItemQuery(name: string, amount: number, unit_of_measurement: string, storage_id: string, user_id: string, data: string, item_id: string, is_damaged: boolean, min_amount: number, image_url: string | null = null) {
     if (user_id == "") {return false;}
+    
+    // Fetch previous item state to compare maintenance status changes
+    const oldItemResult = await db`SELECT * FROM item WHERE id = ${item_id}`;
+    const oldItem = oldItemResult[0];
+
     const result = await db`
         UPDATE item 
         SET amount = ${amount}, 
@@ -117,6 +123,13 @@ export async function editItemQuery(name: string, amount: number, unit_of_measur
         )
         RETURNING *;
     `;
+
+    if (result.length !== 0 && oldItem) {
+        checkAndTriggerItemMaintenanceNotification(oldItem, result[0], user_id).catch((err) => {
+            console.error("Failed to process maintenance status check:", err);
+        });
+    }
+
     return result.length !== 0;
 }
 
@@ -190,12 +203,34 @@ export async function borrowItemQuery(item_id: string, user_id: string, borrowed
 export async function returnItemQuery(item_id: string, user_id: string, notes: string) {
     if (user_id == "") return false;
     return await db.begin(async sql => {
-        const itemCheck = await sql`SELECT storage_id FROM item WHERE id = ${item_id};`;
-        const storage_id = itemCheck[0]?.storage_id;
+        // Fetch storage and borrow details to check if the asset was overdue
+        const itemCheck = await sql`
+            SELECT i.storage_id, i.name, i.is_borrowed,
+                   (SELECT MAX(created_at) FROM item_history WHERE item_id = i.id AND action_type = 'borrow') as borrowed_at
+            FROM item i 
+            WHERE i.id = ${item_id};
+        `;
+        const itemInfo = itemCheck[0];
+        const storage_id = itemInfo?.storage_id;
+
+        const isOverdue = itemInfo && itemInfo.is_borrowed && itemInfo.borrowed_at && 
+            (new Date().getTime() - new Date(itemInfo.borrowed_at).getTime() > 7 * 24 * 60 * 60 * 1000);
 
         await sql`UPDATE item SET is_borrowed = false WHERE id = ${item_id}`;
         await sql`INSERT INTO item_history (item_id, user_id, action_type, notes) VALUES (${item_id}, ${user_id}, 'return', ${notes})`;
         
+        if (isOverdue && storage_id) {
+            sendNotificationToStorageUsers(
+                storage_id,
+                "Overdue Asset Returned 🔄",
+                `"${itemInfo.name}" has been returned and is no longer overdue.`,
+                `/items/${item_id}`,
+                user_id
+            ).catch((err) => {
+                console.error("Failed to send return notification:", err);
+            });
+        }
+
         revalidatePath("/");
         if (storage_id) {
             revalidatePath(`/locations/${storage_id}`);

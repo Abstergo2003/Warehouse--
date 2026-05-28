@@ -3,9 +3,11 @@
 import { NavBar, NavBarLink } from 'react-windows-ui';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { usePWAInstall } from '@/lib/hooks/usePWAInstall';
 
 export default function WindowsNavBar() {
   const pathname = usePathname();
+  const { isStandalone } = usePWAInstall();
 
   return (
     <NavBar
@@ -57,6 +59,13 @@ export default function WindowsNavBar() {
           text="Profile"
           active={pathname === '/profile'}
           icon={<i className="icons10-user"></i>}
+        />
+      </Link>
+      <Link href="/install" passHref legacyBehavior>
+        <NavBarLink
+          text={isStandalone ? "App Installed" : "Install App"}
+          active={pathname === '/install'}
+          icon={<i className="icons10-download" style={{ color: isStandalone ? 'var(--primary)' : 'inherit' }}></i>}
         />
       </Link>
       <Link href="?modal=add-item" passHref legacyBehavior>
