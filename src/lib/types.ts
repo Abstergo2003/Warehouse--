@@ -18,7 +18,8 @@ export interface Item {
   owner_id: string,
   storage_id: string,
   min_amount: number,
-  data: TemplatesRow[]
+  data: TemplatesRow[],
+  storage_name?: string;
 }
 
 export interface AnimatedIconHandle {
@@ -47,4 +48,20 @@ export interface TemplatesRow {
   id: string,
   user_id: string,
   fields: FieldType[]
+}
+
+export interface StorageShare {
+  user_id: string;
+  display_name: string;
+  role: string;
+}
+
+export interface ItemHistory {
+  id: string;
+  item_id: string | null;
+  user_id: string;
+  action_type: 'borrow' | 'return' | 'create' | 'edit' | 'delete' | 'move';
+  notes: string;
+  created_at: string | Date;
+  display_name?: string;
 }

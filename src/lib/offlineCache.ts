@@ -13,6 +13,25 @@ export async function withOfflineCache<T>(
     return queryFn();
   }
 
+  // Fast offline check: if the browser reports offline, don't even try to query the network.
+  // This avoids slow network timeouts and serves cached data instantly.
+  if (!navigator.onLine) {
+    console.warn(`[Offline Cache] Device is offline. Directly serving cached data for "${cacheKey}"...`);
+    
+    // Trigger global event notifying offline status or cached display
+    window.dispatchEvent(new CustomEvent('app-offline-active', { detail: { key: cacheKey } }));
+
+    const cached = localStorage.getItem(`offline_cache:${cacheKey}`);
+    if (cached) {
+      try {
+        return JSON.parse(cached) as T;
+      } catch (e) {
+        console.error(`[Offline Cache] Failed to parse cached data for key "${cacheKey}"`, e);
+      }
+    }
+    return fallbackValue;
+  }
+
   try {
     const data = await queryFn();
     if (data !== undefined && data !== null && (typeof data !== 'boolean' || data === true)) {

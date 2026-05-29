@@ -36,10 +36,7 @@ export async function CreateWarehouseAction(formData: FormData) {
                 Body: buffer,
                 ContentType: file.type,
             }));
-            const host = process.env.NEXT_PUBLIC_S3_HOSTNAME || "localhost";
-            const port = process.env.NEXT_PUBLIC_S3_PORT || "9000";
-            const bucket = process.env.S3_BUCKET_NAME!;
-            dbImageUrl = `http://${host}:${port}/${bucket}/${uniqueFileName}`;
+            dbImageUrl = `/api/images/${uniqueFileName}`;
         } catch (error) {
             console.error("Error uploading image:", error);
         }
@@ -69,10 +66,7 @@ export async function UpdateWarehouseAction(formData: FormData, storageId: strin
                 Body: buffer,
                 ContentType: file.type,
             }));
-            const host = process.env.NEXT_PUBLIC_S3_HOSTNAME || "localhost";
-            const port = process.env.NEXT_PUBLIC_S3_PORT || "9000";
-            const bucket = process.env.S3_BUCKET_NAME!;
-            dbImageUrl = `http://${host}:${port}/${bucket}/${uniqueFileName}`;
+            dbImageUrl = `/api/images/${uniqueFileName}`;
         } catch (error) {
             console.error("Error uploading image:", error);
         }

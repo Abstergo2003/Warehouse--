@@ -8,11 +8,12 @@ import { InputSearchBar, LoaderBusy } from "react-windows-ui";
 import { Table } from "@/app/components/table";
 import Link from "next/link";
 import { withOfflineCache, getCachedAllItems } from "@/lib/offlineCache";
+import { Item } from "@/lib/types";
 
 export default function SearchPage() {
     const { data: session } = useSession();
     const [searchTerm, setSearchTerm] = useState("");
-    const [results, setResults] = useState<any[]>([]);
+    const [results, setResults] = useState<Item[]>([]);
     const [loading, setLoading] = useState(false);
 
     const handleSearch = useCallback(async (term: string) => {
@@ -25,7 +26,7 @@ export default function SearchPage() {
                 if (isOnline) {
                     // Wrap empty query cache so we capture the master list
                     const cacheKey = term === "" ? `search_all:${userId}` : `search_term:${userId}:${term}`;
-                    const searchResults = await withOfflineCache<any>(cacheKey, () => searchItemsQuery(userId, term), []);
+                    const searchResults = await withOfflineCache<Item[]>(cacheKey, () => searchItemsQuery(userId, term) as unknown as Promise<Item[]>, []);
                     setResults(searchResults || []);
                 } else {
                     // Offline local scan!

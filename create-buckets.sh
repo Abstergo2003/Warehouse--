@@ -12,8 +12,8 @@ echo "✅ MinIO połączone jako ADMIN. Rozpoczynam konfigurację..."
 # 1. Tworzenie Bucketa
 BUCKET_NAME="${S3_BUCKET_NAME:-warehouse}"
 /usr/bin/mc mb --ignore-existing "myminio/${BUCKET_NAME}"
-/usr/bin/mc anonymous set public "myminio/${BUCKET_NAME}"
-echo "✅ Bucket '${BUCKET_NAME}' gotowy i publiczny."
+/usr/bin/mc anonymous set private "myminio/${BUCKET_NAME}"
+echo "✅ Bucket '${BUCKET_NAME}' gotowy i prywatny."
 
 # 2. Tworzenie usera
 APP_USER="${S3_ACCESS_KEY:-app-user}"

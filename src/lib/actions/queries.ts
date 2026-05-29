@@ -165,9 +165,14 @@ export async function duplicateItemQuery(user_id: string, item_id: string) {
     if (user_id == "") {return false;}
     const result = await db`
         INSERT INTO item (name, amount, storage_id, unit_of_measurement, data, owner_id, image_url) 
-        SELECT name || ' (Copy)', amount, storage_id, unit_of_measurement, data, owner_id, image_url 
+        SELECT name || ' (Copy)', amount, storage_id, unit_of_measurement, data, ${user_id}, image_url 
         FROM item 
         WHERE id = ${item_id} 
+        AND storage_id IN (
+            SELECT id FROM storage WHERE owner_id = ${user_id}
+            UNION
+            SELECT storage_id FROM user_storage WHERE user_id = ${user_id} AND role = 'admin'
+        )
         RETURNING id, storage_id; 
     `;
     if (result.length !== 0) {
@@ -183,8 +188,23 @@ export async function duplicateItemQuery(user_id: string, item_id: string) {
 export async function borrowItemQuery(item_id: string, user_id: string, borrowed_to_id: string, notes: string) {
     if (user_id == "") return false;
     return await db.begin(async sql => {
-        const itemCheck = await sql`SELECT storage_id FROM item WHERE id = ${item_id};`;
-        const storage_id = itemCheck[0]?.storage_id;
+        // Authorization check: User must have access to the item/storage to borrow it
+        const itemCheck = await sql`
+            SELECT i.storage_id FROM item i
+            WHERE i.id = ${item_id}
+            AND (
+                i.owner_id = ${user_id}
+                OR i.storage_id IN (
+                    SELECT id FROM storage WHERE owner_id = ${user_id}
+                    UNION
+                    SELECT storage_id FROM user_storage WHERE user_id = ${user_id}
+                )
+            );
+        `;
+        if (itemCheck.length === 0) {
+            return false;
+        }
+        const storage_id = itemCheck[0].storage_id;
 
         await sql`UPDATE item SET is_borrowed = true, last_borrowed_to = ${borrowed_to_id} WHERE id = ${item_id}`;
         await sql`INSERT INTO item_history (item_id, user_id, action_type, notes) VALUES (${item_id}, ${user_id}, 'borrow', ${notes})`;
@@ -203,17 +223,28 @@ export async function borrowItemQuery(item_id: string, user_id: string, borrowed
 export async function returnItemQuery(item_id: string, user_id: string, notes: string) {
     if (user_id == "") return false;
     return await db.begin(async sql => {
-        // Fetch storage and borrow details to check if the asset was overdue
+        // Authorization check: User must have access to the item/storage to return it
         const itemCheck = await sql`
             SELECT i.storage_id, i.name, i.is_borrowed,
                    (SELECT MAX(created_at) FROM item_history WHERE item_id = i.id AND action_type = 'borrow') as borrowed_at
             FROM item i 
-            WHERE i.id = ${item_id};
+            WHERE i.id = ${item_id}
+            AND (
+                i.owner_id = ${user_id}
+                OR i.storage_id IN (
+                    SELECT id FROM storage WHERE owner_id = ${user_id}
+                    UNION
+                    SELECT storage_id FROM user_storage WHERE user_id = ${user_id}
+                )
+            );
         `;
+        if (itemCheck.length === 0) {
+            return false;
+        }
         const itemInfo = itemCheck[0];
-        const storage_id = itemInfo?.storage_id;
+        const storage_id = itemInfo.storage_id;
 
-        const isOverdue = itemInfo && itemInfo.is_borrowed && itemInfo.borrowed_at && 
+        const isOverdue = itemInfo.is_borrowed && itemInfo.borrowed_at && 
             (new Date().getTime() - new Date(itemInfo.borrowed_at).getTime() > 7 * 24 * 60 * 60 * 1000);
 
         await sql`UPDATE item SET is_borrowed = false WHERE id = ${item_id}`;

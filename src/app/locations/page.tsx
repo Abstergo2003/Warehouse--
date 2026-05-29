@@ -13,16 +13,17 @@ import { listAvailibleStoragesQuery } from '@/lib/actions/queries';
 import { LoaderBusy } from 'react-windows-ui';
 import { withOfflineCache } from '@/lib/offlineCache';
 
+import { Storage as DBStorage } from '@/lib/types';
+
 export default function LocationsPage() {
     const { data: session } = useSession();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [storages, setStorages] = useState<any[]>([]);
+    const [storages, setStorages] = useState<DBStorage[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (session?.user?.id) {
             const userId = session.user.id;
-            withOfflineCache<any>(`storages:${userId}`, () => listAvailibleStoragesQuery(userId), []).then(data => {
+            withOfflineCache<DBStorage[]>(`storages:${userId}`, () => listAvailibleStoragesQuery(userId) as unknown as Promise<DBStorage[]>, []).then(data => {
                 setStorages(data || []);
                 setLoading(false);
             });
@@ -52,7 +53,7 @@ export default function LocationsPage() {
                         <Location key={storage.id} data={{
                             id: storage.id,
                             name: storage.name,
-                            img_url: storage.img_url,
+                            img_url: storage.img_url || "",
                             localization: typeof storage.localization !== 'string' ? JSON.parse(storage.localization) : storage.localization
                         }} />
                     )) : (

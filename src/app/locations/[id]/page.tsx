@@ -11,17 +11,17 @@ import { getStorageInfoQuery, listAllItemsInStorageQuery, getStorageSharesQuery 
 import { DeleteWarehouseAction } from "@/lib/actions/createWarehouse"
 import { withOfflineCache } from "@/lib/offlineCache"
 
+import { Storage as DBStorage, Item, StorageShare } from "@/lib/types"
+
 export default function LocationByID() {
     const params = useParams();
     const router = useRouter();
     const storageId = params.id as string;
     const { data: session } = useSession();
     
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [storage, setStorage] = useState<any>(null);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [items, setItems] = useState<any[]>([]);
-    const [shares, setShares] = useState<any[]>([]);
+    const [storage, setStorage] = useState<DBStorage | null>(null);
+    const [items, setItems] = useState<Item[]>([]);
+    const [shares, setShares] = useState<StorageShare[]>([]);
     const [loading, setLoading] = useState(true);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isOffline, setIsOffline] = useState(false);
@@ -44,9 +44,9 @@ export default function LocationByID() {
         if (session?.user?.id && storageId) {
             const userId = session.user.id;
             Promise.all([
-                withOfflineCache<any>(`storage_info:${storageId}`, () => getStorageInfoQuery(storageId, userId), null),
-                withOfflineCache<any>(`storage_items:${storageId}`, () => listAllItemsInStorageQuery(storageId, userId), []),
-                withOfflineCache<any>(`storage_shares:${storageId}`, () => getStorageSharesQuery(storageId, userId), [])
+                withOfflineCache<DBStorage | null>(`storage_info:${storageId}`, () => getStorageInfoQuery(storageId, userId) as unknown as Promise<DBStorage | null>, null),
+                withOfflineCache<Item[]>(`storage_items:${storageId}`, () => listAllItemsInStorageQuery(storageId, userId) as unknown as Promise<Item[]>, []),
+                withOfflineCache<StorageShare[]>(`storage_shares:${storageId}`, () => getStorageSharesQuery(storageId, userId) as unknown as Promise<StorageShare[]>, [])
             ]).then(([storageData, itemsData, sharesData]) => {
                 setStorage(storageData);
                 setItems(itemsData || []);
@@ -144,7 +144,7 @@ export default function LocationByID() {
                                 fontSize: '12px',
                                 fontWeight: 'bold',
                                 margin: 0
-                            }}>{storage.effective_role.toUpperCase()}</p>
+                            }}>{(storage.effective_role || 'member').toUpperCase()}</p>
                             <p style={{ margin: 0, color: 'white', fontSize: '14px', opacity: 0.9 }}>
                                 <i className="icons10-map" style={{ marginRight: '5px' }}></i>
                                 {storage.storage_area} m² Area

@@ -10,13 +10,15 @@ export default function OfflineBanner() {
     if (typeof window === 'undefined') return;
 
     // Set initial network state
-    setIsOffline(!navigator.onLine);
-    if (!navigator.onLine) {
+    const currentOffline = !navigator.onLine;
+    setIsOffline(currentOffline);
+    if (currentOffline) {
       setLastChecked(new Date().toLocaleTimeString());
     }
 
     const handleOnline = () => {
       setIsOffline(false);
+      setLastChecked(null);
     };
 
     const handleOffline = () => {
@@ -26,9 +28,7 @@ export default function OfflineBanner() {
 
     const handleCustomOffline = () => {
       setIsOffline(true);
-      if (!lastChecked) {
-        setLastChecked(new Date().toLocaleTimeString());
-      }
+      setLastChecked((prev) => prev || new Date().toLocaleTimeString());
     };
 
     window.addEventListener('online', handleOnline);
@@ -40,7 +40,7 @@ export default function OfflineBanner() {
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('app-offline-active', handleCustomOffline);
     };
-  }, [lastChecked]);
+  }, []);
 
   if (!isOffline) return null;
 
