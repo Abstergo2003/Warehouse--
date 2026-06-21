@@ -22,6 +22,9 @@ services:
       - NEXT_PUBLIC_VAPID_PUBLIC_KEY=${NEXT_PUBLIC_VAPID_PUBLIC_KEY}
       - VAPID_PRIVATE_KEY=${VAPID_PRIVATE_KEY}
       - VAPID_EMAIL=${VAPID_EMAIL}
+      # Registration Access Security
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - REGISTRATION_SECRET=${REGISTRATION_SECRET}
     depends_on:
       - db
       - minio # Czekaj na start MinIO

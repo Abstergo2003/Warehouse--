@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
     display_name VARCHAR(255),
     email VARCHAR(320) UNIQUE NOT NULL,
     avatar_url TEXT,
+    status VARCHAR(20) DEFAULT 'pending' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 

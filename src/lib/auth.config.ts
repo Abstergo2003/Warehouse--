@@ -4,14 +4,16 @@ export const authConfig = {
   providers: [],
   pages: {
     signIn: "/login",
+    error: "/login",
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnLoginPage = nextUrl.pathname.startsWith('/login');
+      const isOnApprovePage = nextUrl.pathname.startsWith('/api/approve');
 
-      if (isOnLoginPage) {
-        if (isLoggedIn) return Response.redirect(new URL('/', nextUrl));
+      if (isOnLoginPage || isOnApprovePage) {
+        if (isOnLoginPage && isLoggedIn) return Response.redirect(new URL('/', nextUrl));
         return true;
       }
 

@@ -23,4 +23,31 @@ if (process.env.NODE_ENV === 'production') {
   db = global.sqlGlobal;
 }
 
+// Asynchroniczna migracja bazy danych dla nowej kolumny 'status' użytkownika
+async function runMigrations() {
+  try {
+    // Dodajemy kolumnę 'status' jako nullable
+    await db.unsafe(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(20);
+    `);
+    
+    // Ustawiamy status wszystkich istniejących użytkowników na 'approved'
+    await db.unsafe(`
+      UPDATE users SET status = 'approved' WHERE status IS NULL;
+    `);
+    
+    // Ustawiamy domyślny status 'pending' dla nowych i oznaczamy NOT NULL
+    await db.unsafe(`
+      ALTER TABLE users ALTER COLUMN status SET DEFAULT 'pending';
+      ALTER TABLE users ALTER COLUMN status SET NOT NULL;
+    `);
+    console.log("✅ Database migrations for 'status' user column completed successfully.");
+  } catch (error) {
+    console.error("❌ Database migration error:", error);
+  }
+}
+
+// Uruchamiamy migrację w tle przy imporcie bazy danych
+runMigrations();
+
 export default db;

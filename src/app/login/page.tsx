@@ -5,9 +5,17 @@ import {auth} from "@/lib/auth"
 import WindowsPageContainer from "@/app/components/WindowsPageContainer";
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage() {
+interface PageProps {
+  searchParams: Promise<{ error?: string }>;
+}
+
+export default async function LoginPage({ searchParams }: PageProps) {
   const session = await auth();
   if (session?.user?.id) redirect("/");
+
+  const resolvedParams = await searchParams;
+  const error = resolvedParams?.error;
+
   return (
     <WindowsPageContainer>
       <div style={{ 
@@ -36,7 +44,32 @@ export default async function LoginPage() {
             style={{ marginBottom: '20px' }}
           />
           <h1 style={{ marginBottom: '10px' }}>Warehouse</h1>
-          <p style={{ opacity: 0.7, marginBottom: '40px' }}>Please sign in to continue</p>
+          <p style={{ opacity: 0.7, marginBottom: '25px' }}>Please sign in to continue</p>
+
+          {error === 'AccessDenied' && (
+            <div style={{
+              padding: '12px 16px',
+              border: '1px solid #ffb900',
+              backgroundColor: 'rgba(255, 185, 0, 0.1)',
+              borderRadius: '4px',
+              color: '#ffb900',
+              fontSize: '14px',
+              textAlign: 'left',
+              marginBottom: '25px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+              lineHeight: '1.4'
+            }}>
+              <span style={{ fontSize: '18px', marginTop: '-2px' }}>⚠️</span>
+              <div>
+                <strong style={{ display: 'block', marginBottom: '4px' }}>Access Restricted</strong>
+                <span>
+                  Your email is pending administrator authorization or has been blocked. If you just registered, a notification has been sent to the admin.
+                </span>
+              </div>
+            </div>
+          )}
           
           <form
             action={async () => {
