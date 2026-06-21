@@ -26,15 +26,34 @@ async function sendDiscordWebhook(user: { name: string; email: string }) {
     content: `🔒 **New Registration Request**
 
 **Name:** ${user.name || 'N/A'}
-**Email:** ${user.email}
-
-**Actions:**
-✅ **Approve User:** ${approveUrl}
-🚫 **Block User:** ${blockUrl}`
+**Email:** ${user.email}`,
+    components: [
+      {
+        type: 1,
+        components: [
+          {
+            type: 2,
+            style: 5,
+            label: "✅ Approve User",
+            url: approveUrl
+          },
+          {
+            type: 2,
+            style: 5,
+            label: "🚫 Block User",
+            url: blockUrl
+          }
+        ]
+      }
+    ]
   };
 
   try {
-    const response = await fetch(webhookUrl, {
+    const sendUrl = webhookUrl.includes('?')
+      ? `${webhookUrl}&wait=true&with_components=true`
+      : `${webhookUrl}?wait=true&with_components=true`;
+
+    const response = await fetch(sendUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(message)
